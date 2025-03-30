@@ -29,7 +29,7 @@ public class UserService {
         return UserModelMapper.from(userRepository.save(UserModelMapper.onto(newUser)));
     }
 
-    public void delete(int id) {
+    public void delete(long id) {
         userRepository.deleteById(id);
     }
 
