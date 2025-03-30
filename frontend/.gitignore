@@ -1,35 +1,38 @@
-# Logs
-logs
-*.log
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
+# Learn more https://docs.github.com/en/get-started/getting-started-with-git/ignoring-files
 
-
-# Compiled binary addons (http://nodejs.org/api/addons.html)
-build/Release
-
-# Dependency directories
+# dependencies
 node_modules/
-jspm_packages/
 
-# Distribution directories
+# Expo
+.expo/
 dist/
+web-build/
+expo-env.d.ts
 
-# Typescript v1 declaration files
-typings/
+# Native
+*.orig.*
+*.jks
+*.p8
+*.p12
+*.key
+*.mobileprovision
 
-# Optional npm cache directory
-.npm
+# Metro
+.metro-health-check*
 
-# Optional eslint cache
-.eslintcache
+# debug
+npm-debug.*
+yarn-debug.*
+yarn-error.*
 
-# Optional REPL history
-.node_repl_history
+# macOS
+.DS_Store
+*.pem
 
-# Output of 'npm pack'
-*.tgz
+# local env files
+.env*.local
 
-# Yarn Integrity file
-.yarn-integrity
+# typescript
+*.tsbuildinfo
+
+app-example
