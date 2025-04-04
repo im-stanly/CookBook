@@ -1,7 +1,7 @@
 package com.cookBook.service;
 
 import com.cookBook.entity.UserModel;
-import com.cookBook.entity.UserModelDTO;
+import com.cookBook.dto.UserModelDTO;
 
 public class UserModelMapper {
     static UserModel onto(UserModelDTO userDTO) {

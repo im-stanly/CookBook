@@ -5,7 +5,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import com.cookBook.config.UserTokenUtils;
 import com.cookBook.entity.UserModel;
-import com.cookBook.entity.UserModelDTO;
+import com.cookBook.dto.UserModelDTO;
 import com.cookBook.repository.UserRepository;
 
 @Service

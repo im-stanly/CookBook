@@ -23,7 +23,19 @@ public class IngredientModel {
 
     @Column(name = "NAME",nullable = false)
     private String name;
+
     @ManyToOne
-    @JoinColumn(name = "INGREDIENTS_SUPERSETS",nullable = false)
+    @JoinTable(
+            name = "INGREDIENTS_SUPERSETS",
+            joinColumns = @JoinColumn(name = "INGREDIENT_ID"),
+            inverseJoinColumns = @JoinColumn(name = "SUBINGREDIENT_ID")
+    )
     private IngredientModel SuperIngredients;
+
+    @Column(name = "APPROXIMATE_CALORIES_PER_100_GRAM",nullable = false)
+    private long approximateCaloriesPer100Gram;
+
+
+
+
 }

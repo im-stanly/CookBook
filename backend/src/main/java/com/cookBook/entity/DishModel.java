@@ -11,18 +11,15 @@ import java.util.List;
 @Data
 @Entity
 @Builder
-@Table(name = "MEASUREMENT_UNITS")
+@Table(name = "DISHES")
 @AllArgsConstructor
 @NoArgsConstructor
-public class MeasurementUnitModel {
+public class DishModel {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "ID")
     private long id;
 
-    @Column(name = "NAME",nullable = false)
-    private String name;
-
-    @OneToMany(mappedBy = "from")
-    private List<ConversionModel> availableConversions;
+    @OneToMany(mappedBy = "dish")
+    List<RecipeModel> recipes;
 }

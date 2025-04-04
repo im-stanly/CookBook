@@ -5,7 +5,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import com.cookBook.config.UserTokenUtils;
-import com.cookBook.entity.UserModelDTO;
+import com.cookBook.dto.UserModelDTO;
 import com.cookBook.service.UserService;
 import java.util.HashMap;
 import java.util.List;

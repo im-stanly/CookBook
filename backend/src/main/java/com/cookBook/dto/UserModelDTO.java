@@ -1,4 +1,4 @@
-package com.cookBook.entity;
+package com.cookBook.dto;
 
 import lombok.Builder;
 import lombok.Data;

@@ -6,6 +6,8 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.List;
+
 @Data
 @Entity
 @Builder
@@ -23,4 +25,17 @@ public class RecipeModel {
 
     @Column(name = "NAME",nullable = false)
     private String name;
+    @OneToMany(mappedBy = "recipe")
+    private List<ReactionModel> reactions;
+
+    @OneToMany(mappedBy = "recipe")
+    private List<IngredientInRecipeModel> ingredients;
+
+    @ManyToOne
+    @JoinTable(
+            name = "RECIPES_FOR_DISHES",
+            joinColumns = @JoinColumn(name = "RECIPE_ID"),
+            inverseJoinColumns = @JoinColumn(name = "DISH_ID")
+    )
+    private DishModel dish;
 }

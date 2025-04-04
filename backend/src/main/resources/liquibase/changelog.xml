@@ -35,6 +35,9 @@
             <column name="NAME" type="varchar(255)">
                 <constraints nullable="false" unique="true"/>
             </column>
+            <column name="APPROXIMATE_CALORIES_PER_100_GRAM" type="bigint">
+                <constraints nullable="false"/>
+            </column>
         </createTable>
         <createTable tableName="MEASUREMENT_UNITS">
             <column name="ID" type="bigint" autoIncrement="true">
@@ -42,6 +45,20 @@
             </column>
             <column name="NAME" type="varchar(255)">
                 <constraints nullable="false" unique="true"/>
+            </column>
+        </createTable>
+        <createTable tableName="MU_CONVERSIONS">
+            <column name="ID" type="bigint" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="MU_FROM_ID" type="bigint">
+                <constraints nullable="false" foreignKeyName="FK_MU_FROM_MU_TO_ID" references="MEASUREMENT_UNITS(ID)"/>
+            </column>
+            <column name="MU_TO_ID" type="bigint">
+                <constraints nullable="false" foreignKeyName="FK_MU_TO_MU_FROM_ID" references="MEASUREMENT_UNITS(ID)"/>
+            </column>
+            <column name="CONVERSION_PER_ONE_UNIT" type="real">
+                <constraints nullable="false"/>
             </column>
         </createTable>
         <createTable tableName="INGREDIENTS_SUPERSETS">
@@ -62,8 +79,16 @@
             <column name="NAME" type="varchar(255)">
                 <constraints nullable="false" unique="true"/>
             </column>
+        </createTable>
+        <createTable tableName="RECIPES_FOR_DISHES">
+            <column name="ID" type="bigint" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
             <column name="RECIPE_ID" type="bigint">
                 <constraints nullable="false" foreignKeyName="FK_DISH_RECIPE_ID" references="RECIPES(ID)"/>
+            </column>
+            <column name="DISH_ID" type="bigint">
+                <constraints nullable="false" foreignKeyName="FK_RECIPE_DISH_ID" references="DISHES(ID)"/>
             </column>
         </createTable>
         <createTable tableName="INGREDIENTS_IN_RECIPES">
@@ -79,13 +104,14 @@
             <column name="MEASUREMENT_UNIT_ID" type="bigint">
                 <constraints nullable="false" foreignKeyName="FK_MEASUREMENT_UNIT_ID_INGREDIENT_ID" references="MEASUREMENT_UNITS(ID)"/>
             </column>
-            <column name="AMOUNT_RANGE_START" type="int">
+            <column name="AMOUNT_RANGE_START" type="real">
                 <constraints nullable="false"/>
             </column>
-            <column name="AMOUNT_RANGE_END" type="int">
+            <column name="AMOUNT_RANGE_END" type="real">
                 <constraints nullable="true"/>
             </column>
         </createTable>
+
         <createTable tableName="LIKES">
             <column name="ID" type="bigint" autoIncrement="true">
                 <constraints primaryKey="true" nullable="false"/>
@@ -110,12 +136,15 @@
 
         <insert tableName="INGREDIENTS">
             <column name="NAME" value="Flour"/>
+            <column name="APPROXIMATE_CALORIES_PER_100_GRAM" value="111"/>
         </insert>
         <insert tableName="INGREDIENTS">
             <column name="NAME" value="Milk"/>
+            <column name="APPROXIMATE_CALORIES_PER_100_GRAM" value="20"/>
         </insert>
         <insert tableName="INGREDIENTS">
             <column name="NAME" value="Egg"/>
+            <column name="APPROXIMATE_CALORIES_PER_100_GRAM" value="2"/>
         </insert>
 
 
@@ -125,10 +154,22 @@
         <insert tableName="MEASUREMENT_UNITS">
             <column name="NAME" value="Piece"/>
         </insert>
-
+        <insert tableName="MU_CONVERSIONS">
+            <column name="MU_FROM_ID" valueComputed="(SELECT ID FROM MEASUREMENT_UNITS WHERE NAME='Cup')"/>
+            <column name="MU_TO_ID" valueComputed="(SELECT ID FROM MEASUREMENT_UNITS WHERE NAME='Piece')"/>
+            <column name="CONVERSION_PER_ONE_UNIT" value="5.0"/>
+        </insert>
+        <insert tableName="MU_CONVERSIONS">
+            <column name="MU_TO_ID" valueComputed="(SELECT ID FROM MEASUREMENT_UNITS WHERE NAME='Cup')"/>
+            <column name="MU_FROM_ID" valueComputed="(SELECT ID FROM MEASUREMENT_UNITS WHERE NAME='Piece')"/>
+            <column name="CONVERSION_PER_ONE_UNIT" value="0.2"/>
+        </insert>
         <insert tableName="DISHES">
             <column name="NAME" value="Pancakes"/>
+        </insert>
+        <insert tableName="RECIPES_FOR_DISHES">
             <column name="RECIPE_ID" valueComputed="(SELECT ID FROM RECIPES WHERE NAME='Simple Pancakes')"/>
+            <column name="DISH_ID" valueComputed="(SELECT ID FROM DISHES WHERE NAME='Pancakes')"/>
         </insert>
         <insert tableName="INGREDIENTS_IN_RECIPES">
             <column name="INGREDIENT_ID" valueComputed="(SELECT ID FROM INGREDIENTS WHERE NAME='Flour')"/>
