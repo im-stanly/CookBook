@@ -5,6 +5,8 @@ build/
 !**/src/main/**/build/
 !**/src/test/**/build/
 
+!**/src/main/java/com/cookBook/config/AppConfiguration.java
+!**/src/main/java/com/cookBook/config/SecurityConfiguration.java
 target/
 application.properties
 

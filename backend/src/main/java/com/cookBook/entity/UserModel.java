@@ -1,19 +1,17 @@
 package com.cookBook.entity;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.util.List;
 
-@Data
 @Entity
 @Builder
 @Table(name = "USERS")
 @AllArgsConstructor
 @NoArgsConstructor
+@Getter
+@Setter
 public class UserModel {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

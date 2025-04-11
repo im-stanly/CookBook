@@ -1,17 +1,15 @@
 package com.cookBook.entity;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
-@Data
 @Entity
 @Builder
 @Table(name = "INGREDIENTS_IN_RECIPES")
 @AllArgsConstructor
 @NoArgsConstructor
+@Getter
+@Setter
 public class IngredientInRecipeModel {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

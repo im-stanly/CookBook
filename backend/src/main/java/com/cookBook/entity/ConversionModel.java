@@ -1,17 +1,16 @@
 package com.cookBook.entity;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
-@Data
+
 @Entity
 @Builder
 @Table(name = "MU_CONVERSIONS")
 @AllArgsConstructor
 @NoArgsConstructor
+@Getter
+@Setter
 public class ConversionModel {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
