@@ -54,8 +54,12 @@ public class UserTokenUtils {
 
     public static int getUserID(String token) {
         Claims claims = getTokenClaims(token);
-
         return claims != null ? (int) claims.get("id") : -1;
+    }
+
+    public static String getUsername(String token){
+        Claims claims = getTokenClaims(token);
+        return claims != null ? (String) claims.get("username") : null;
     }
 
     private static Claims getTokenClaims(String token) {
