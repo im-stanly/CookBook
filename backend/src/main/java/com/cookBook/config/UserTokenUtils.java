@@ -16,7 +16,7 @@ public class UserTokenUtils {
     private static final long EXPIRATION_TIME = 3600000; // 1 hour
     private static final Key SIGNING_KEY = Keys.secretKeyFor(SignatureAlgorithm.HS256);
 
-    public static String generateToken(int id, String email, String username, String role) {
+    public static String generateToken(long id, String email, String username, String role) {
         Map<String, Object> claims = new HashMap<>();
         claims.put("id", id);
         claims.put("email", email);
@@ -54,8 +54,12 @@ public class UserTokenUtils {
 
     public static int getUserID(String token) {
         Claims claims = getTokenClaims(token);
-
         return claims != null ? (int) claims.get("id") : -1;
+    }
+
+    public static String getUsername(String token){
+        Claims claims = getTokenClaims(token);
+        return claims != null ? (String) claims.get("username") : null;
     }
 
     private static Claims getTokenClaims(String token) {

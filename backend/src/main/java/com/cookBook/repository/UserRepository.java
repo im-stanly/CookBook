@@ -8,17 +8,11 @@ import java.util.List;
 import com.cookBook.entity.UserModel;
 
 @Repository
-public interface UserRepository extends JpaRepository<UserModel, Integer> {
+public interface UserRepository extends JpaRepository<UserModel, Long> {
 
-    @Query("select u from #{#entityName} u where u.id = ?1")
-    UserModel findById(int id);
 
-    @Query("select u from #{#entityName} u where u.username = ?1")
+    UserModel findById(long id);
     List<UserModel> findByUsername(String username);
-
-    @Query("select u from #{#entityName} u where u.email = ?1")
     List<UserModel> findByEmail(String email);
-
-    @Query("select u from #{#entityName} u where u.username = ?1 and password = ?2")
     UserModel findByUsernameAndPassword(String username, String password);
 }

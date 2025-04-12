@@ -5,7 +5,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import com.cookBook.config.UserTokenUtils;
 import com.cookBook.entity.UserModel;
-import com.cookBook.entity.UserModelDTO;
+import com.cookBook.dto.UserModelDTO;
 import com.cookBook.repository.UserRepository;
 
 @Service
@@ -19,7 +19,7 @@ public class UserService {
     }
 
     public UserModelDTO save(UserModelDTO newUser) {
-        if (EmailValidation.isEmailValid(newUser.getEmail())) {
+        if (!EmailValidation.isEmailValid(newUser.getEmail())) {
             throw new RuntimeException("Email address not valid");
         }
 
@@ -29,7 +29,7 @@ public class UserService {
         return UserModelMapper.from(userRepository.save(UserModelMapper.onto(newUser)));
     }
 
-    public void delete(int id) {
+    public void delete(long id) {
         userRepository.deleteById(id);
     }
 

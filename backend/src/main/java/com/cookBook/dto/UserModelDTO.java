@@ -1,4 +1,4 @@
-package com.cookBook.entity;
+package com.cookBook.dto;
 
 import lombok.Builder;
 import lombok.Data;
@@ -6,8 +6,7 @@ import lombok.Data;
 @Builder
 @Data
 public class UserModelDTO {
-    private int id;
-    private String email;
     private String username;
     private String password;
+    private String email;
 }

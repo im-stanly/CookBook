@@ -5,7 +5,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import com.cookBook.config.UserTokenUtils;
-import com.cookBook.entity.UserModelDTO;
+import com.cookBook.dto.UserModelDTO;
 import com.cookBook.service.UserService;
 import java.util.HashMap;
 import java.util.List;
@@ -24,9 +24,9 @@ public class UserController {
         return userService.getUsers();
     }
 
-    @GetMapping("/id/{id}")
-    public UserModelDTO findById(@PathVariable("id") int id) {
-        return userService.findById(id);
+    @GetMapping("/username/{username}")
+    public UserModelDTO findByUsername(@PathVariable("username") String username) {
+        return userService.findByUsername(username);
     }
 
     @GetMapping("/token")
@@ -36,9 +36,9 @@ public class UserController {
 
     @PostMapping("/register")
     public ResponseEntity<Map<String, String>> add(@RequestBody UserModelDTO newAccount) {
-        if (userService.save(newAccount) != null) {
+        if (userService.save(newAccount) != null)
             return ResponseEntity.ok(createSuccessResponse("Account created successfully."));
-        }
+
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(createErrorResponse("Server Error."));
     }
 
@@ -60,16 +60,15 @@ public class UserController {
         return ResponseEntity.ok(response);
     }
 
-    @DeleteMapping("/id/{id}")
-    public ResponseEntity<Map<String, String>> deleteUser(@PathVariable("id") int id, @RequestHeader(value = "user-token") String userToken) {
-        ResponseEntity<Map<String, String>> checkIfAccess = isOwnerOrAdmin(id, userToken);
+    @DeleteMapping("/username/{username}")
+    public ResponseEntity<Map<String, String>> deleteUser(@PathVariable("username") String username, @RequestHeader(value = "user-token") String userToken) {
+        ResponseEntity<Map<String, String>> checkIfAccess = isOwnerOrAdmin(username, userToken);
 
         if (checkIfAccess != null) return checkIfAccess;
-
         Map<String, String> response = new HashMap<>();
 
         try {
-            userService.delete(id);
+            userService.delete(UserTokenUtils.getUserID(userToken));
             response.put("success", "true");
         } catch (RuntimeException e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(createErrorResponse(e.getMessage()));
@@ -94,12 +93,12 @@ public class UserController {
         return response;
     }
 
-    private ResponseEntity<Map<String, String>> isOwnerOrAdmin(int id, String userToken) {
+    private ResponseEntity<Map<String, String>> isOwnerOrAdmin(String username, String userToken) {
         if (!UserTokenUtils.isTokenValid(userToken))
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(createErrorResponse("Your session has end, please log in again"));
 
-        int userIdFromToken = UserTokenUtils.getUserID(userToken);
-        if (!UserTokenUtils.isAdmin(userToken) && (userIdFromToken == -1 || userIdFromToken != id))
+        String usernameFromToken = UserTokenUtils.getUsername(username);
+        if (!UserTokenUtils.isAdmin(userToken) && (usernameFromToken == null || !usernameFromToken.equals(username)))
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(createErrorResponse("You don't have permissions to do delete this user"));
 
         return null;
