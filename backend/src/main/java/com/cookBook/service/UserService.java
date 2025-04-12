@@ -19,7 +19,7 @@ public class UserService {
     }
 
     public UserModelDTO save(UserModelDTO newUser) {
-        if (EmailValidation.isEmailValid(newUser.getEmail())) {
+        if (!EmailValidation.isEmailValid(newUser.getEmail())) {
             throw new RuntimeException("Email address not valid");
         }
 
