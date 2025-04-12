@@ -12,6 +12,8 @@ import { useState } from 'react';
 import { TextInput, View, Text, Button, Pressable } from 'react-native';
 import { RecipeView } from '@/components/RecipeView';
 import { NoRecipeFoundView } from '@/components/NoRecipeFoundView';
+import { IngredientSelector } from '@/components/IngredientSelector';
+import { IngredientList } from '@/components/IngredientList';
 
 // Prevent the splash screen from auto-hiding before asset loading is complete.
 SplashScreen.preventAutoHideAsync();
@@ -26,6 +28,11 @@ function getRecipe(ingredients: string[]): { name: string, description: string, 
 	}
 }
 
+//TODO: Get the possible ingredients from the server
+function getPossibleIngredients(): string[] {
+	return ["banana", "potato"];
+}
+
 export default function RootLayout() {
 	const colorScheme = useColorScheme();
 	const [loaded] = useFonts({
@@ -33,8 +40,8 @@ export default function RootLayout() {
 	});
 	const [page, setPage] = useState<'home' | 'recipe'>('home');
 	const [Ingredients, setIngredients] = useState<string[]>([]);
-	//TODO: Handle multiple ingredients
-	const [input, setInput] = useState<string>('');
+
+	const possible_ingredients = getPossibleIngredients();
 
 	useEffect(() => {
 		if (loaded) {
@@ -57,21 +64,14 @@ export default function RootLayout() {
 						justifyContent: 'center',
 						alignItems: 'center',
 					}}>
-					<Text>insert product</Text>
-					<TextInput
-						style={{
-							height: 40,
-							width: 200,
-							borderColor: 'gray',
-							borderWidth: 1,
-							padding: 10,
-							margin: 10,
-							borderRadius: 10,
-						}}
-						value={input}
-						placeholder="Product Name"
-						onChangeText={(text) => setInput(text)}
-					/>
+					<IngredientList ingredients={Ingredients} />
+					<IngredientSelector possible_ingredients={possible_ingredients} add_ingredient={(i) => {
+						if (Ingredients.indexOf(i) === -1) {
+							const new_ings = Ingredients.slice();//Without this, the state is not updated
+							new_ings.push(i);
+							setIngredients(new_ings)
+						}
+					}} />
 					<Pressable
 						style={{
 							margin: 10,
@@ -80,7 +80,6 @@ export default function RootLayout() {
 							borderRadius: 10,
 						}}
 						onPress={() => {
-							setIngredients([input]);
 							setPage('recipe');
 						}}
 					>
