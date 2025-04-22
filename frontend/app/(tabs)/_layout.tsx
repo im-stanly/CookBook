@@ -29,7 +29,7 @@ export default function TabLayout() {
           },
           android: {
             position: 'absolute',
-            height: 100,
+            height: 80,
             paddingTop: 10,
             borderTopWidth: 0,
           },
