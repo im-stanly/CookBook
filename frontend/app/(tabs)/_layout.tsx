@@ -8,8 +8,8 @@ import { useColorScheme } from '@/hooks/useColorScheme';
 import { View } from 'react-native';
 import { Sizes } from '@/constants/Add-button-sizes';
 
-const TABBAR_HEIGHT = Platform.OS === 'ios' ? 100 : 80;
 
+const TABBAR_HEIGHT = Sizes.TABBAR_HEIGHT;
 const ICON_SIZE = Sizes.ICON_SIZE as number;
 const ADDBTN_BOTTOM_OFFSET = Sizes.ADDBTN_BOTTOM_OFFSET as DimensionValue;
 const ADDBTN_RIGHT_OFFSET = Sizes.ADDBTN_RIGHT_OFFSET as DimensionValue;
@@ -37,7 +37,7 @@ export default function TabLayout() {
     <View style={{ flex: 1 }}>
       <Tabs
         screenOptions={{
-          tabBarActiveTintColor: Colors[colorScheme ?? 'light'].tint,
+          tabBarActiveTintColor: colorScheme === 'light' ? '#2C2C2E' : Colors.dark.tint,
           headerShown: false,
           tabBarBackground: TabBarBackground,
           tabBarStyle: Platform.select({
@@ -72,7 +72,7 @@ export default function TabLayout() {
           name="index"
           options={{
             title: 'Home',
-            tabBarIcon: ({ color }) => <MaterialIcons size={ICON_SIZE} name="home" color={color} />,
+            tabBarIcon: ({ color }) => <MaterialIcons size={ICON_SIZE} name="food-bank" color={color} />,
             tabBarLabel: ({ color }) => (
               <Text style={{ color, marginTop: 6, fontSize: 12 }}>Home</Text>
             ),
@@ -107,7 +107,7 @@ const styles = StyleSheet.create({
     width: ADDBTN_SIZE,
     height: ADDBTN_SIZE,
     borderRadius: ADDBTN_SIZE / 2,
-    backgroundColor: 'green',
+    backgroundColor: '#2C2C2E',
     justifyContent: 'center',
     alignItems: 'center',
     shadowColor: '#000',

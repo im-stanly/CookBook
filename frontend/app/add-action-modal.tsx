@@ -53,6 +53,7 @@ export default function AddActionModal() {
                 <BlurView intensity={80} tint="light" style={StyleSheet.absoluteFill} />
             </Pressable>
 
+            {/* TODO: Create Search page, camera input page, voice input page */} 
             <View style={styles.buttonContainer}>
                 <Animated.View style={[styles.button, getTransformStyle(2)]}>
                     <TouchableOpacity onPress={() => console.log("Search pressed")} style={styles.miniButton}>
