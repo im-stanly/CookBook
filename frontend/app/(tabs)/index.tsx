@@ -6,6 +6,7 @@ import { IngredientList, IngredientListRef } from '@/components/IngredientList';
 import { Sizes } from '@/constants/Add-button-sizes';
 import { useRef } from 'react';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
+import { useAuth } from '@/contexts/AuthContext';
 
 const TOP_MARGIN = Platform.OS === 'ios' ? '7%' : '5%';
 const TABBAR_HEIGHT = Sizes.TABBAR_HEIGHT;
@@ -38,6 +39,7 @@ const CookButton = ({ onPress }: { onPress?: () => void }) => (
 
 export default function HomeScreen() {
   const colorScheme = useColorScheme();
+  const { onLogout } = useAuth();
 
   const ingredientListRef = useRef<IngredientListRef>(null);
   const handleClearAll = () => {
@@ -70,6 +72,7 @@ export default function HomeScreen() {
           onPress={() => {
             {/* TODO: Create profile page/setting/preferences */}
             console.log('Profile Pic clicked');
+            onLogout!();
           }}
           style={{
             marginRight: 20,

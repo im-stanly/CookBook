@@ -7,6 +7,9 @@ import { Colors } from '@/constants/Colors';
 import { useColorScheme } from '@/hooks/useColorScheme';
 import { View } from 'react-native';
 import { Sizes } from '@/constants/Add-button-sizes';
+import { useEffect } from 'react';
+import { useAuth } from '@/contexts/AuthContext';
+import { useRouter, useSegments } from 'expo-router';
 
 
 const TABBAR_HEIGHT = Sizes.TABBAR_HEIGHT;
@@ -32,10 +35,22 @@ const AddButton = ({ onPress } : { onPress?: () => void}) => (
 
 export default function TabLayout() {
   const colorScheme = useColorScheme();
+  
+  const { authState } = useAuth();
+  const router = useRouter();
+  const segments = useSegments();
+
+  useEffect(() => {
+    if (authState?.loading === false && authState?.authenticated === false && segments[0] === '(tabs)'
+    ) {
+      router.replace('/login');
+    }
+  }, [authState?.loading, authState?.authenticated, segments]);
 
   return (
-    <View style={{ flex: 1 }}>
-      <Tabs
+      authState?.authenticated ? (
+      <View style={{ flex: 1 }}>
+        <Tabs
         screenOptions={{
           tabBarActiveTintColor: colorScheme === 'light' ? '#2C2C2E' : Colors.dark.tint,
           headerShown: false,
@@ -92,7 +107,7 @@ export default function TabLayout() {
           router.push('/add-action-modal');
         }}
       />
-    </View>
+      </View>) : null
   );
 }
 
