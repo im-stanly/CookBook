@@ -1,9 +1,10 @@
 package com.cookBook.service;
 
 import java.util.List;
-import java.util.Set;
 import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import com.cookBook.dto.IngredientModelDTO;
@@ -20,6 +21,7 @@ public class RecipeService {
     @Autowired
     private RecipeRepository recipeRepository;
 
+    @Transactional(readOnly = true)
     public List<RecipeModelDTO> getAllRecipes() {
         return recipeRepository.findAll().stream()
                 .map(this::mapToRecipeModelDTO)
@@ -28,24 +30,20 @@ public class RecipeService {
 
     @Transactional(readOnly = true)
     public List<RecipeModelDTO> getRecipesByIngredients(List<UserInputIngredientDTO> userIngredients) {
-        List<RecipeModel> allRecipes = recipeRepository.findAll();
-
-        Set<String> requiredIngredientNames = userIngredients.stream()
+        List<String> allowedIngredientNames = userIngredients.stream()
                 .map(UserInputIngredientDTO::getName)
-                .collect(Collectors.toSet());
+                .distinct()
+                .toList();
 
-        if (requiredIngredientNames.isEmpty()) {
+        // TODO: consider the amount of ingredients and the measurement unit
+
+        if (allowedIngredientNames.isEmpty())
             return List.of();
-        }
 
-        return allRecipes.stream()
-                .filter(recipe -> {
-                    Set<String> recipeIngredientNames = recipe.getIngredients().stream()
-                            .map(ingredientInRecipe -> ingredientInRecipe.getIngredient().getName())
-                            .collect(Collectors.toSet());
-                    return recipeIngredientNames.containsAll(requiredIngredientNames);
-                })
-                .limit(5)
+        Page<RecipeModel> recipePage = recipeRepository
+                .findRecipesByAllowedIngredients(allowedIngredientNames);
+
+        return recipePage.getContent().stream()
                 .map(this::mapToRecipeModelDTO)
                 .collect(Collectors.toList());
     }
@@ -53,13 +51,13 @@ public class RecipeService {
     private RecipeModelDTO mapToRecipeModelDTO(RecipeModel recipe) {
         int likes = 0;
         int dislikes = 0;
+
         if (recipe.getReactions() != null) {
             for (ReactionModel reaction : recipe.getReactions()) {
-                if (reaction.isLike()) {
+                if (reaction.isLike())
                     likes++;
-                } else {
+                else
                     dislikes++;
-                }
             }
         }
 

@@ -31,7 +31,7 @@ public class WelcomeController {
         if(!testRecipe.isPresent()) {
             return "Recipe with id 1 not present in database";
         }
-        List<IngredientInRecipeModel> ingredients = testRecipe.get().getIngredients();
+        List<IngredientInRecipeModel> ingredients = testRecipe.get().getIngredients().stream().toList();
         return ingredients.getFirst().getMeasurementUnit().getName().concat(" converts to ")
                 .concat(String.valueOf(ingredients.getFirst().getMeasurementUnit().getAvailableConversions().getFirst().getConversionPerOneUnit()))
                 .concat(" ")

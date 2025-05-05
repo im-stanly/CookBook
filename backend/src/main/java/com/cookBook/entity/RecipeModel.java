@@ -2,8 +2,7 @@ package com.cookBook.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
-
-import java.util.List;
+import java.util.Set;
 
 @Entity
 @Builder
@@ -23,11 +22,12 @@ public class RecipeModel {
 
     @Column(name = "NAME",nullable = false)
     private String name;
-    @OneToMany(mappedBy = "recipe")
-    private List<ReactionModel> reactions;
 
     @OneToMany(mappedBy = "recipe")
-    private List<IngredientInRecipeModel> ingredients;
+    private Set<ReactionModel> reactions;
+
+    @OneToMany(mappedBy = "recipe")
+    private Set<IngredientInRecipeModel> ingredients;
 
     @ManyToOne
     @JoinTable(
