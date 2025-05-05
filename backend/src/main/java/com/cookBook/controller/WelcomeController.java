@@ -1,7 +1,6 @@
 package com.cookBook.controller;
 
 import com.cookBook.entity.IngredientInRecipeModel;
-import com.cookBook.entity.MeasurementUnitModel;
 import com.cookBook.entity.RecipeModel;
 import com.cookBook.repository.RecipeRepository;
 import org.springframework.web.bind.annotation.GetMapping;
