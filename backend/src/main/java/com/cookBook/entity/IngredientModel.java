@@ -2,8 +2,7 @@ package com.cookBook.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
-
-import java.util.List;
+import java.util.Set;
 
 @Entity
 @Builder
@@ -18,8 +17,7 @@ public class IngredientModel {
     @Column(name = "ID")
     private long id;
 
-
-    @Column(name = "NAME",nullable = false)
+    @Column(name = "NAME",nullable = false, unique = true)
     private String name;
 
     @ManyToOne
@@ -33,7 +31,7 @@ public class IngredientModel {
     @Column(name = "APPROXIMATE_CALORIES_PER_100_GRAM",nullable = false)
     private long approximateCaloriesPer100Gram;
 
-
-
+    @OneToMany(mappedBy = "ingredient", fetch = FetchType.LAZY)
+    private Set<IngredientInRecipeModel> usagesInRecipes;
 
 }
