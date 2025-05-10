@@ -29,6 +29,6 @@ public interface RecipeRepository extends JpaRepository<RecipeModel,Long> {
                   AND    iir.ingredient.name NOT IN :allowedIngredients
            )
            """)
-    Page<RecipeModel> findRecipesByAllowedIngredients(
+    List<RecipeModel> findRecipesByAllowedIngredients(
             @Param("allowedIngredients") List<String> allowedIngredients);
 }
