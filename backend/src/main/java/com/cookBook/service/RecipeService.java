@@ -3,8 +3,6 @@ package com.cookBook.service;
 import java.util.List;
 import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import com.cookBook.dto.IngredientModelDTO;
@@ -40,10 +38,10 @@ public class RecipeService {
         if (allowedIngredientNames.isEmpty())
             return List.of();
 
-        Page<RecipeModel> recipePage = recipeRepository
+        List<RecipeModel> recipePage = recipeRepository
                 .findRecipesByAllowedIngredients(allowedIngredientNames);
 
-        return recipePage.getContent().stream()
+        return recipePage.stream()
                 .map(this::mapToRecipeModelDTO)
                 .collect(Collectors.toList());
     }
