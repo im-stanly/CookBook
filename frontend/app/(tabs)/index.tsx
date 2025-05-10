@@ -2,11 +2,12 @@ import { Image, Platform, TouchableOpacity, View } from 'react-native';
 import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
 import { useColorScheme } from '@/hooks/useColorScheme';
-import { IngredientList, IngredientListRef } from '@/components/IngredientList';
+import IngredientList, { } from '@/components/IngredientList';
 import { Sizes } from '@/constants/Add-button-sizes';
 import { useRef } from 'react';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { useAuth } from '@/contexts/AuthContext';
+import { useIngredients } from '@/contexts/IngredientsContext';
 
 const TOP_MARGIN = Platform.OS === 'ios' ? '7%' : '5%';
 const TABBAR_HEIGHT = Sizes.TABBAR_HEIGHT;
@@ -32,7 +33,7 @@ const CookButton = ({ onPress }: { onPress?: () => void }) => (
         justifyContent: 'center',
       }}>
       <ThemedText style={{ color: 'white', fontSize: 16, paddingRight: 10, paddingBottom: 0 }}>Cook</ThemedText>
-      <MaterialCommunityIcons name='bowl-mix' size={18} color="white" style={{paddingBottom: 4}}></MaterialCommunityIcons>
+      <MaterialCommunityIcons name='bowl-mix' size={18} color="white" style={{ paddingBottom: 4 }}></MaterialCommunityIcons>
     </View>
   </TouchableOpacity>
 );
@@ -40,10 +41,10 @@ const CookButton = ({ onPress }: { onPress?: () => void }) => (
 export default function HomeScreen() {
   const colorScheme = useColorScheme();
   const { onLogout } = useAuth();
+  const { ingredientsState, setIngredientsState } = useIngredients();
 
-  const ingredientListRef = useRef<IngredientListRef>(null);
   const handleClearAll = () => {
-    ingredientListRef.current?.clearAll();
+    setIngredientsState!({ ingredientList: [] });
   };
 
   return (
@@ -57,7 +58,7 @@ export default function HomeScreen() {
           flexDirection: 'row',
           alignItems: 'center',
           justifyContent: 'space-between',
-      }}>
+        }}>
         {/* Hello, username! (?) */}
         <ThemedText
           style={{
@@ -70,7 +71,7 @@ export default function HomeScreen() {
 
         <TouchableOpacity
           onPress={() => {
-            {/* TODO: Create profile page/setting/preferences */}
+            {/* TODO: Create profile page/setting/preferences */ }
             console.log('Profile Pic clicked');
             onLogout!();
           }}
@@ -80,12 +81,12 @@ export default function HomeScreen() {
         >
           <View
             style={{
-              padding: 3, 
+              padding: 3,
               borderWidth: 2,
               borderColor: colorScheme === 'light' ? '#222' : '#fff',
-              borderRadius: 25, 
+              borderRadius: 25,
             }}
-          > 
+          >
             <Image
               source={{ uri: 'https://randomuser.me/api/portraits/men/1.jpg' }}
               style={{ width: 25, height: 25, borderRadius: 20 }}
@@ -135,11 +136,11 @@ export default function HomeScreen() {
           </TouchableOpacity>
         </View>
 
-        {/* TODO: Ingredients list */}  
-        <IngredientList  ref={ingredientListRef} />    
-        
+        {/* TODO: Ingredients list */}
+        <IngredientList />
+
       </View>
-        
+
       {/* TODO: Add recipe page */}
       <CookButton
         onPress={() => console.log('Cook button pressed')}

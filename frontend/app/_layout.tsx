@@ -10,6 +10,7 @@ import { useRouter, useSegments } from 'expo-router';
 
 import { useColorScheme } from '@/hooks/useColorScheme';
 import { AuthProvider, useAuth } from '@/contexts/AuthContext';
+import { IngredientsProvider } from '@/contexts/IngredientsContext';
 
 SplashScreen.preventAutoHideAsync();
 SystemUI.setBackgroundColorAsync('#transparent');
@@ -31,7 +32,9 @@ export default function RootLayout() {
 
   return (
     <AuthProvider>
-      <Layout></Layout>
+      <IngredientsProvider>
+        <Layout></Layout>
+      </IngredientsProvider>
     </AuthProvider>
   );
 }
@@ -41,9 +44,9 @@ export const Layout = () => {
   const { authState } = useAuth();
 
   if (authState?.loading === true || authState?.authenticated === null) {
-    return null; 
+    return null;
   }
-  
+
   return (
     <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
       <StatusBar style="auto" />

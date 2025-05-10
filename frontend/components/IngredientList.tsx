@@ -1,18 +1,10 @@
-import React, {useState, useRef, useImperativeHandle, forwardRef} from "react";
-import { View, TextInput, StyleSheet, TouchableOpacity, FlatList } from "react-native";
+import React from "react";
+import { View, StyleSheet, TouchableOpacity, FlatList } from "react-native";
 import { ThemedText } from "@/components/ThemedText";
 import { useColorScheme } from '@/hooks/useColorScheme';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
-import { useThemeColor } from '@/hooks/useThemeColor';
 import { router } from "expo-router";
-
-
-type Ingredient = {
-    id: string;
-    name: string;
-    quantity: number;
-    unit: string;
-};
+import { Ingredient, useIngredients } from "@/contexts/IngredientsContext";
 
 type IngredientListProps = {
     item: string;
@@ -23,7 +15,7 @@ type IngredientListProps = {
     onRemoveIngredient: () => void;
 };
 
-{/* TODO: Make each item clickable so user can edit quantity of stuff (new modal ts) */} 
+{/* TODO: Make each item clickable so user can edit quantity of stuff (new modal ts) */ }
 const IngredientListItem = ({
     item,
     quantity,
@@ -35,7 +27,7 @@ const IngredientListItem = ({
     const colorScheme = useColorScheme();
 
     return (
-        <View style={[styles.container, {backgroundColor: colorScheme === 'light' ? '#222' : '#222'}]}>
+        <View style={[styles.container, { backgroundColor: colorScheme === 'light' ? '#222' : '#222' }]}>
             <ThemedText style={styles.itemText}>{item}</ThemedText>
             <View style={styles.controls}>
                 <ThemedText style={styles.itemText}>{quantity}</ThemedText>
@@ -51,44 +43,33 @@ const IngredientListItem = ({
 const AddIngredientButton = ({ onPress }: { onPress: () => void }) => {
     const colorScheme = useColorScheme();
     return (
-      <TouchableOpacity onPress={onPress} style={[styles.addButtonContainer, 
-        {borderColor: "gray"}]}>
-        <MaterialIcons name="add" size={24} color="gray"/>        
-      </TouchableOpacity>
+        <TouchableOpacity onPress={onPress} style={[styles.addButtonContainer,
+        { borderColor: "gray" }]}>
+            <MaterialIcons name="add" size={24} color="gray" />
+        </TouchableOpacity>
     );
 };
-  
-export interface IngredientListRef {
-    clearAll: () => void;
-}
 
-export const IngredientList = forwardRef<IngredientListRef>((props, ref) => {
+export default function IngredientList() {
     const colorScheme = useColorScheme();
-    
-    const [ingredients, setIngredients] = useState<Ingredient[]>([
-        { id: "3", name: "Flour", quantity: 99999, unit: "cups" },
-        { id: "2", name: "Banana", quantity: 1, unit: "liters" },
-        { id: "1", name: "Milk", quantity: 3, unit: "barrels" },
-    ]);
 
-    useImperativeHandle(ref, () => ({
-        clearAll: () => {
-            setIngredients([]);
-        },
-    }));
+    const { ingredientsState, setIngredientsState } = useIngredients();
 
     const handleRemoveIngredient = (id: string) => {
-        setIngredients(ingredients.filter(item => item.id !== id));
+        const updatedIngredients = ingredientsState!.ingredientList.filter(item => item.id !== id);
+        setIngredientsState!({ ingredientList: updatedIngredients });
     };
 
     const handleQuantityChange = (id: string, quantity: number) => {
-        setIngredients(ingredients.map(item => item.id === id ? { ...item, quantity } : item));
+        const updatedIngredients = ingredientsState!.ingredientList.map(item => item.id === id ? { ...item, quantity } : item);
+        setIngredientsState!({ ingredientList: updatedIngredients });
     };
 
     const handleAddIngredient = (ingredient: Ingredient) => {
-        const highestId = ingredients.reduce((max, item) => Math.max(max, parseInt(item.id)), 0);
+        const highestId = ingredientsState!.ingredientList.reduce((max, item) => Math.max(max, parseInt(item.id)), 0);
         const newId = (highestId + 1).toString();
-        setIngredients([{ id: newId, name: 'New Ingredient', quantity: 1, unit: 'units' }, ...ingredients]);
+        const newIngredient = { ...ingredient, id: newId };
+        setIngredientsState!({ ingredientList: [newIngredient, ...ingredientsState!.ingredientList] });
     };
 
     const renderItem = ({ item }: { item: Ingredient | 'add-button' }) => {
@@ -108,7 +89,7 @@ export const IngredientList = forwardRef<IngredientListRef>((props, ref) => {
         }
     }
 
-    const listData = ['add-button' as const, ...ingredients];;
+    const listData = ['add-button' as const, ...ingredientsState!.ingredientList];
     return (
         <View>
             <FlatList
@@ -121,7 +102,7 @@ export const IngredientList = forwardRef<IngredientListRef>((props, ref) => {
             {/* <AddIngredientButton onPress={() => handleAddIngredient({ id: '', name: '', quantity: 1, unit: '' })} /> */}
         </View>
     );
-});
+}
 
 const styles = StyleSheet.create({
     listContainer: {
@@ -147,7 +128,7 @@ const styles = StyleSheet.create({
         paddingRight: 10,
         flexDirection: 'row',
         alignItems: 'center',
-        justifyContent: 'flex-end', 
+        justifyContent: 'flex-end',
     },
     removeBtn: {
         marginLeft: 10,
@@ -167,4 +148,4 @@ const styles = StyleSheet.create({
         marginLeft: 10,
         color: '#fff',
     },
-  });
+});
