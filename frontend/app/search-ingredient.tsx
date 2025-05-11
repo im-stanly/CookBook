@@ -6,7 +6,11 @@ import { useRef, useEffect, useState } from "react";
 import { Animated, DimensionValue, Pressable, TouchableOpacity, View, StyleSheet, TextInput, Text } from "react-native";
 import { Picker } from '@react-native-picker/picker';
 import { useIngredients } from "@/contexts/IngredientsContext";
+import axios from "axios";
 
+/* While testing on an expo app replace localhost with your computer's IP
+    for example: http://192.168.100.129:8080 */
+const API_URL = 'http://localhost:8080';
 
 const BTN_SIZE = Sizes.BTN_SIZE;
 const BTN_BOTTOM_OFFSET = Sizes.ADDBTN_BOTTOM_OFFSET as DimensionValue;
@@ -23,6 +27,16 @@ export default function SearchIngredient() {
     const [ingredientAmount, setIngredientAmount] = useState<number>(0);
     const [ingredientAmountInput, setIngredientAmountInput] = useState<string>("0");
     const { ingredientsState, setIngredientsState } = useIngredients();
+
+    const [possibleIngredients, setPossibleIngredients] = useState<string[]>([]);
+    const [unitsForIngredients, setUnitsForIngredients] = useState<Map<string, string[]>>(new Map<string, string[]>());
+
+    useEffect(() => {
+        axios.get(`${API_URL}/recipe/ingredients`, {}).then((response) => {
+            setPossibleIngredients(Object.keys(response.data));
+            setUnitsForIngredients(new Map<string, string[]>(Object.entries(response.data)));
+        })
+    }, []);
 
     const checkAdd = () => {
         if (validIngredient === true
@@ -63,11 +77,18 @@ export default function SearchIngredient() {
             setUnitsList([]);
             setSelectedUnit("");
         }
-        else if (text === "banana") { //TODO: API call to check if ingredient is valid
-            setValidIngredient(true);
-            const validUnits = ["grams", "liters", "cups", "monkeys/m^2"]; // TODO: API call to get valid units
-            setUnitsList(validUnits);
-            setSelectedUnit(validUnits[0]); // Set the first unit as default
+        else if (possibleIngredients.includes(text)) {
+            const validUnits = unitsForIngredients.get(text) || [];
+            if (validUnits.length === 0) {
+                setValidIngredient(false);
+                setUnitsList([]);
+                setSelectedUnit("");
+            }
+            else {
+                setValidIngredient(true);
+                setUnitsList(validUnits);
+                setSelectedUnit(validUnits[0]); // Set the first unit as default
+            }
         }
         else {
             setValidIngredient(false);
@@ -147,7 +168,7 @@ export default function SearchIngredient() {
                             )
                             )}
                         </Picker>
-                        : <Picker enabled={false} style={styles.picker}/>
+                        : <Picker enabled={false} style={styles.picker} />
                     }
                 </View>
                 {checkAdd() ?
