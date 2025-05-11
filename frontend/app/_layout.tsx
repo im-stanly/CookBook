@@ -63,6 +63,11 @@ export const Layout = () => {
                 animation: 'fade',
               }}
             />,
+            <Stack.Screen key="search-ingredient" name="search-ingredient" options={{
+              presentation: 'transparentModal',
+              headerShown: false,
+              animation: 'fade',
+            }} />,
           ]
         ) : (
           [

@@ -7,7 +7,7 @@ import { Sizes } from '@/constants/Add-button-sizes';
 
 const BTN_SIZE = Sizes.BTN_SIZE;
 const MINI_BTN_SIZE = Sizes.MINI_BTN_SIZE;
-const BTN_SPACING =  Sizes.BTN_SPACING;
+const BTN_SPACING = Sizes.BTN_SPACING;
 const INITIAL_SPACING = Sizes.INITIAL_SPACING;
 const BTN_BOTTOM_OFFSET = Sizes.ADDBTN_BOTTOM_OFFSET as DimensionValue;
 const BTN_RIGHT_OFFSET = Sizes.ADDBTN_RIGHT_OFFSET as DimensionValue;
@@ -15,7 +15,7 @@ const BTN_RIGHT_OFFSET = Sizes.ADDBTN_RIGHT_OFFSET as DimensionValue;
 export default function AddActionModal() {
     const animation = useRef(new Animated.Value(0)).current;
 
-    useEffect(() => { 
+    useEffect(() => {
         Animated.spring(animation, {
             toValue: 1,
             friction: 6,
@@ -36,13 +36,13 @@ export default function AddActionModal() {
     };
 
     const getTransformStyle = (index: number) => ({
-        transform: [ { scale: animation },
-            {
-                translateY: animation.interpolate({
-                    inputRange: [0, 1],
-                    outputRange: [0, -(INITIAL_SPACING + BTN_SPACING * index)],
-                }),
-            },
+        transform: [{ scale: animation },
+        {
+            translateY: animation.interpolate({
+                inputRange: [0, 1],
+                outputRange: [0, -(INITIAL_SPACING + BTN_SPACING * index)],
+            }),
+        },
         ],
         opacity: animation,
     });
@@ -53,10 +53,10 @@ export default function AddActionModal() {
                 <BlurView intensity={80} tint="light" style={StyleSheet.absoluteFill} />
             </Pressable>
 
-            {/* TODO: Create Search page, camera input page, voice input page */} 
+            {/* TODO: Create Search page, camera input page, voice input page */}
             <View style={styles.buttonContainer}>
                 <Animated.View style={[styles.button, getTransformStyle(2)]}>
-                    <TouchableOpacity onPress={() => console.log("Search pressed")} style={styles.miniButton}>
+                    <TouchableOpacity onPress={() => { router.push('/search-ingredient') }} style={styles.miniButton}>
                         <MaterialIcons name="search" size={24} color="#333" />
                     </TouchableOpacity>
                 </Animated.View>
@@ -73,15 +73,18 @@ export default function AddActionModal() {
 
                 <TouchableOpacity onPress={handleClose} style={styles.mainButton}>
                     <Animated.View style={{
-                        transform: [{ rotate: animation.interpolate({
-                        inputRange: [0, 1],
-                        outputRange: ['0deg', '45deg'],
-                    })}]}}>
+                        transform: [{
+                            rotate: animation.interpolate({
+                                inputRange: [0, 1],
+                                outputRange: ['0deg', '45deg'],
+                            })
+                        }]
+                    }}>
                         <MaterialIcons name="add" size={28} color="white" />
                     </Animated.View>
                 </TouchableOpacity>
             </View>
-        </View>
+        </View >
     );
 }
 
