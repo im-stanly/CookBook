@@ -40,8 +40,10 @@ with open('13k-recipes.csv', 'r', encoding='utf-8') as csvfile:
         if recipe_name == "" or recipe_name is None:
             recipe_name = f"Recipe {idx}"
         description = ""
-        if len(row) > 3 and row[3].strip():
-            description = row[3].strip()
+
+        ingredients_text = row[2].strip() if len(row) > 2 else ""
+        instructions_text = row[3].strip() if len(row) > 3 else ""
+        description = f"Ingredients: {ingredients_text} Description: {instructions_text}"
         try:
             cur.execute(
                 "INSERT INTO RECIPES (NAME, DESCRIPTION) VALUES (%s, %s) ON CONFLICT DO NOTHING;",
@@ -50,7 +52,9 @@ with open('13k-recipes.csv', 'r', encoding='utf-8') as csvfile:
         except Exception as e:
             conn.rollback()
             raise SystemExit(f"Failed to insert recipe '{recipe_name}': {e}")
+
         recipes.append(recipe_name)
+
 
 conn.commit()
 ingredient_inserted = set()
