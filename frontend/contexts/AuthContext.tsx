@@ -1,6 +1,7 @@
 import { createContext, useContext, useEffect, useState } from "react";
 import axios from "axios";
 import * as SecureStore from "expo-secure-store";
+import { API_URL } from "@/constants/URLs";
 
 interface AuthProps {
     authState?: { token: string | null; authenticated: boolean | null; loading: boolean | null};
@@ -11,9 +12,6 @@ interface AuthProps {
 
 const TOKEN_KEY = 'jwt_token';
 
-/* While testing on an expo app replace localhost with your computer's IP
-    for example: http://192.168.100.129:8080 or http://192.168.0.92:8080*/
-const API_URL = 'http://192.168.0.92:8080';
 const AuthContext = createContext<AuthProps>({});
 
 export const useAuth = () => {

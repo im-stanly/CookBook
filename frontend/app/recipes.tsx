@@ -5,8 +5,7 @@ import axios from "axios";
 import { useEffect, useState } from "react";
 import { Ingredient, useIngredients } from "@/contexts/IngredientsContext";
 import { useAuth } from "@/contexts/AuthContext";
-
-const API_URL = 'http://192.168.0.92:8080';
+import { API_URL } from "@/constants/URLs";
 
 export type RecipeIngredient = {
     name: string,

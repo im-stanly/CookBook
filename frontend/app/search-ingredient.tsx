@@ -6,11 +6,8 @@ import { useRef, useEffect, useState } from "react";
 import { Animated, DimensionValue, Pressable, TouchableOpacity, View, StyleSheet, TextInput, Text } from "react-native";
 import { Picker } from '@react-native-picker/picker';
 import { useIngredients } from "@/contexts/IngredientsContext";
+import { API_URL } from "@/constants/URLs";
 import axios from "axios";
-
-/* While testing on an expo app replace localhost with your computer's IP
-    for example: http://192.168.100.129:8080 */
-const API_URL = 'http://192.168.0.92:8080';
 
 const BTN_SIZE = Sizes.BTN_SIZE;
 const BTN_BOTTOM_OFFSET = Sizes.ADDBTN_BOTTOM_OFFSET as DimensionValue;
