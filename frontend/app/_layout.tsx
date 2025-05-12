@@ -68,6 +68,14 @@ export const Layout = () => {
               headerShown: false,
               animation: 'fade',
             }} />,
+            <Stack.Screen 
+              key='recipes'
+              name='recipes'
+              options={{
+                animation: 'slide_from_right',
+                headerShown: false,
+              }}
+            />,
           ]
         ) : (
           [

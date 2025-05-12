@@ -12,8 +12,8 @@ interface AuthProps {
 const TOKEN_KEY = 'jwt_token';
 
 /* While testing on an expo app replace localhost with your computer's IP
-    for example: http://192.168.100.129:8080 */
-const API_URL = 'http://localhost:8080'; 
+    for example: http://192.168.100.129:8080 or http://192.168.0.92:8080*/
+const API_URL = 'http://192.168.0.92:8080';
 const AuthContext = createContext<AuthProps>({});
 
 export const useAuth = () => {
@@ -44,6 +44,7 @@ export const AuthProvider = ({ children }: any) => {
                 {/* TODO: Change requests to match our API calls */}
                 axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
             } else {
+                {/* TODO: change authenticated to false (set to true only for testing) */}
                 setAuthState({ 
                     token: null, 
                     authenticated: false,
@@ -73,7 +74,7 @@ export const AuthProvider = ({ children }: any) => {
             });
             
             {/* TODO: Change requests to match our API calls */}
-            axios.defaults.headers.common["Authorization"] = `Bearer ${result.data.token}`;
+            axios.defaults.headers.common["user-token"] = result.data.token;
 
             await SecureStore.setItemAsync(TOKEN_KEY, result.data.token);
 
@@ -87,7 +88,7 @@ export const AuthProvider = ({ children }: any) => {
         try {
             await SecureStore.deleteItemAsync(TOKEN_KEY);
             {/* TODO: Change requests to match our API calls */}
-            delete axios.defaults.headers.common["Authorization"];
+            delete axios.defaults.headers.common["user-token"];
             setAuthState({ 
                 token: null, 
                 authenticated: false,

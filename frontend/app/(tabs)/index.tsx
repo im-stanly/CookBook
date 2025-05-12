@@ -8,6 +8,7 @@ import { useRef } from 'react';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { useAuth } from '@/contexts/AuthContext';
 import { useIngredients } from '@/contexts/IngredientsContext';
+import { router } from 'expo-router';
 
 const TOP_MARGIN = Platform.OS === 'ios' ? '7%' : '5%';
 const TABBAR_HEIGHT = Sizes.TABBAR_HEIGHT;
@@ -143,7 +144,7 @@ export default function HomeScreen() {
 
       {/* TODO: Add recipe page */}
       <CookButton
-        onPress={() => console.log('Cook button pressed')}
+        onPress={() => router.push('/recipes')}
       />
     </ThemedView>
   );
