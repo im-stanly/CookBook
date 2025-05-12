@@ -33,11 +33,22 @@ export default function RecipesScreen() {
             const payload = ingredientList.map(({ id, name, quantity, unit}) => ({
                 name: name,
                 unit: unit, 
-                amount: quantity,
+                amount: quantity
             }));
+
+            console.log("Payload:", payload);
     
-            const response = await axios.get(`${API_URL}/recipe/all`, {});
+            const response = await axios({
+                method: 'post',
+                url: `${API_URL}/recipe/byIngredients`,
+                data: payload,
+                headers: {
+                    "Content-Type": "application/json",
+                } 
+            });
             
+
+            console.log("Response:", response.data);            
             
             const fetchedRecipes: Recipe[] = response.data.map((item: any) => ({
                 name: item.name,

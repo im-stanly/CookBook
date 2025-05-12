@@ -40,7 +40,7 @@ export const AuthProvider = ({ children }: any) => {
                     loading: false
                 });
                 {/* TODO: Change requests to match our API calls */}
-                axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
+                axios.defaults.headers.common["user-token"] = token;
             } else {
                 {/* TODO: change authenticated to false (set to true only for testing) */}
                 setAuthState({ 
