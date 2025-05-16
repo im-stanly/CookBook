@@ -21,14 +21,16 @@ public class IngredientService {
     }
 
     @Transactional(readOnly = true)
-    public Map<String, List<String>> getAllIngredientsWithConversions() {
-        return ingredientRepository.findAll().stream()
+    public Map<String, List<String>> getAllIngredientsWithConversions(String ingredientName) {
+        return ingredientRepository
+                .findByNameContainingIgnoreCase(ingredientName)
+                .stream()
                 .collect(Collectors.toMap(
-                        IngredientModel::getName,
-                        ingredient -> ingredient.getUsagesInRecipes().stream()
-                                .map(usage -> usage.getMeasurementUnit().getName())
-                                .distinct()
-                                .collect(Collectors.toList())
+                    IngredientModel::getName,
+                    ingredient -> ingredient.getUsagesInRecipes().stream()
+                        .map(usage -> usage.getMeasurementUnit().getName())
+                        .distinct()
+                        .collect(Collectors.toList())
                 ));
     }
 }
