@@ -5,6 +5,7 @@ import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -34,8 +35,10 @@ public class RecipeController {
         return recipeService.getRecipesByIngredients(ingredients);
     }
 
-    @GetMapping("/ingredients")
-    public Map<String, List<String>> getPossibleIngredients(){
-        return ingredientService.getAllIngredientsWithConversions();
+    @GetMapping("/ingredients/{ingName}")
+    public Map<String, List<String>> getPossibleIngredients(@PathVariable("ingName") String ingredientName) {
+        if(ingredientName == null || ingredientName.length() < 3)
+            return Map.of();
+        return ingredientService.getAllIngredientsWithConversions(ingredientName);
     }
 }
