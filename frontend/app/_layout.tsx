@@ -11,6 +11,7 @@ import { useRouter, useSegments } from 'expo-router';
 import { useColorScheme } from '@/hooks/useColorScheme';
 import { AuthProvider, useAuth } from '@/contexts/AuthContext';
 import { IngredientsProvider } from '@/contexts/IngredientsContext';
+import { RecipesProvider } from '@/contexts/RecipesContext';
 
 SplashScreen.preventAutoHideAsync();
 SystemUI.setBackgroundColorAsync('#transparent');
@@ -33,7 +34,9 @@ export default function RootLayout() {
   return (
     <AuthProvider>
       <IngredientsProvider>
-        <Layout></Layout>
+        <RecipesProvider>
+          <Layout></Layout>
+        </RecipesProvider>
       </IngredientsProvider>
     </AuthProvider>
   );

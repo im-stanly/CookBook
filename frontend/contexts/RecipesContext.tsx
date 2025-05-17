@@ -1,4 +1,4 @@
-import { Children, createContext, useContext, useEffect, useState } from "react";
+import { createContext, useContext, useState } from "react";
 import axios from "axios";
 import { useAuth } from '@/contexts/AuthContext';
 import { Ingredient, useIngredients } from "@/contexts/IngredientsContext";
@@ -22,33 +22,40 @@ export type Recipe = {
 }
 
 interface RecipesProps {
-    // recipesState?: { recipes: Recipe[] };
-    fetchRecipes?: () => Promise<Recipe[]>;
+    recipes: Recipe[];
+    fetchRecipes: () => Promise<void>;
 }
 
-const RecipesContex = createContext<RecipesProps>({});
+const RecipesContex = createContext<RecipesProps>({
+    recipes: [],
+    fetchRecipes: async () => {},
+});
 
-export const useRecipes = () => {
-    return useContext(RecipesContex);
-};
+export const useRecipes = () => useContext(RecipesContex);
 
 export const RecipesProvider = ({ children } : any) => {
-    const [recipesState, setRecipesState] = useState<{recipes: Recipe[]}>({recipes: []});
+    const [recipes, setRecipes] = useState<Recipe[]>([]);
     const { ingredientList } = useIngredients().ingredientsState!;
 
     const fetchRecipes = async () => {
-        try {
+        // console.log("Ingredient list:", ingredientList);
+         try {
             const payload = ingredientList.map(({ id, name, quantity, unit}) => ({
-                name,
-                unit,
-                amount: quantity,
+                name: name,
+                unit: unit, 
+                amount: quantity
             }));
+            // console.log("Sending payload:", payload);
 
-            const response = await axios.post(
-                `${API_URL}/recipe/byIngredients`,
-                payload
-            );
-            
+            const response = await axios({
+                method: 'post',
+                url: `${API_URL}/recipe/byIngredients`,
+                data: payload,
+                headers: {
+                    "Content-Type": "application/json",
+                } 
+            });
+
             const fetchedRecipes: Recipe[] = response.data.map((item: any) => ({
                 name: item.name,
                 description: item.description,
@@ -63,18 +70,15 @@ export const RecipesProvider = ({ children } : any) => {
                     approximateCaloriesPer100Gram: String(ing.approximateCaloriesPer100Gram),
                 })),
             }));
-
-            // setRecipesState({ recipes: fetchedRecipes });
-            console.log("Fetched recipes:", response.data);
-            return fetchedRecipes;
+            setRecipes(fetchedRecipes); 
         } catch (e) {
             console.error("Failed to fetch recipes:", e);
-            return [];
+            setRecipes([]);
         }
-    }
+    };
 
     const value = {
-        // recipesState,
+        recipes,
         fetchRecipes,
     }
 
