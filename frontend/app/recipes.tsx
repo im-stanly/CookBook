@@ -3,19 +3,21 @@ import { ThemedText } from "@/components/ThemedText"
 import { ScrollView, View } from "react-native"
 import { useEffect, useState } from "react";
 import { useRecipes } from "@/contexts/RecipesContext"; 
-import { RecipesProvider } from "@/contexts/RecipesContext";
+import { Dimensions } from "react-native"
 import { Recipe } from "@/contexts/RecipesContext"; 
+import RecipeCard from "@/components/RecipeCard";
+import ReanimatedCarousel from 'react-native-reanimated-carousel';
+
+const { width: screenWidth } = Dimensions.get("window");
+const { height: screenHeight } = Dimensions.get("window");
 
 export default function RecipesScreen() {
     const { recipes, fetchRecipes } = useRecipes();
 
     useEffect(() => {
         const fetchData = async () => {
-            // console.log("Starting fetch with ingredients:", 0);
             await fetchRecipes();
-            // console.log("Fetch complete, recipes:", recipes.length);
         };
-        
         fetchData();
     }, []); 
 
@@ -24,23 +26,27 @@ export default function RecipesScreen() {
     const limitedRecipes = recipes.slice(randomNumber, randomNumber + 5);
 
     return (
-        <View style={{ flex: 1, padding: 20, justifyContent: 'center' }}>
-            <ScrollView style={{ flex: 1, padding: 16 }}> 
-                {recipes.length === 0 ? (
-                    <ThemedText>No recipes found.</ThemedText>
-                ) : (
-                    limitedRecipes.map((recipe, index) => (
-                        <ThemedView key={index} style={{ margin: 10, padding: 10, borderRadius: 8 }}>
-                            <ThemedText style={{ fontSize: 18, fontWeight: 'bold', marginBottom: 10 }}>{recipe.name}</ThemedText>
-                            <ThemedText style={{ marginBottom: 10 }}>
-                                {recipe.description.split("Description: ")[1] || recipe.description}
-                            </ThemedText>
-                            <ThemedText>Likes: {recipe.likesCount}</ThemedText>
-                            <ThemedText>Dislikes: {recipe.dislikesCount}</ThemedText>
-                        </ThemedView>
-                    ))
-                )}
-            </ScrollView>
-        </View>
+        <ThemedView style={{ flex: 1, padding: 20, justifyContent: "center" }}>
+            {limitedRecipes.length === 0 ? (
+                <ThemedText>No recipes found.</ThemedText>
+            ) : (
+                <ReanimatedCarousel
+                    width={screenWidth * 0.85}
+                    height={screenHeight * 0.60}
+                    data={limitedRecipes}
+                    renderItem={({ item }: { item: Recipe }) => <RecipeCard recipe={item} />}
+                    style={{
+                        alignSelf: 'center',
+                        overflow: "visible", 
+                    }}
+                    loop={false}
+                    mode="parallax"
+                    modeConfig={{
+                        parallaxScrollingScale: 0.9,
+                        parallaxScrollingOffset: 40, 
+                    }}
+                />
+            )}
+        </ThemedView>
     )
 }

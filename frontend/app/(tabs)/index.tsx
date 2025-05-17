@@ -77,21 +77,27 @@ export default function HomeScreen() {
             onLogout!();
           }}
           style={{
-            marginRight: 20,
+            marginRight: 15,
+            marginTop: 10,
           }}
         >
           <View
             style={{
-              padding: 3,
-              borderWidth: 2,
-              borderColor: colorScheme === 'light' ? '#222' : '#fff',
-              borderRadius: 25,
+              // padding: 3,
+              // borderWidth: 2,
+              // borderColor: colorScheme === 'light' ? '#222' : '#fff',
+              // backgroundColor: colorScheme === 'light' ? '#222' : '#222',
+              // borderRadius: 10,
             }}
           >
-            <Image
+            {/* <Image
               source={{ uri: 'https://randomuser.me/api/portraits/men/1.jpg' }}
               style={{ width: 25, height: 25, borderRadius: 20 }}
-            />
+            /> */}
+            <MaterialCommunityIcons
+              name="account-circle"
+              size={35}
+              color={colorScheme === 'light' ? '#222' : '#fff'}/>
           </View>
         </TouchableOpacity>
       </View>
@@ -112,6 +118,7 @@ export default function HomeScreen() {
             paddingBottom: 35,
             alignItems: 'baseline',
             justifyContent: 'space-between',
+            overflow: 'visible',
           }}
         >
           <ThemedText
