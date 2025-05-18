@@ -34,7 +34,7 @@ export default function RecipeCard({ recipe }: { recipe: Recipe }) {
 
     return (
         <TouchableOpacity
-            activeOpacity={0.85}
+            activeOpacity={1}
             onPress={() => 
                 router.push({
                     pathname: "/recipe-details",
@@ -79,6 +79,10 @@ export default function RecipeCard({ recipe }: { recipe: Recipe }) {
                         <ThemedText key={index}>{ingredient}</ThemedText>
                     ))}
                 </View> */}
+
+                <View style={{ marginBottom: 20, paddingTop: 10 }}>
+                    <ThemedText numberOfLines={10} style={{ color: '#fff', fontWeight: 'bold'}}>click for more</ThemedText>
+                </View>
             </View>
 
 

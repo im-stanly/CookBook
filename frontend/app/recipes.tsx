@@ -16,6 +16,7 @@ const TABBAR_HEIGHT = Sizes.TABBAR_HEIGHT;
 
 const LoadMoreButton = ({ onPress }: { onPress: () => void }) => (
     <TouchableOpacity
+        activeOpacity={0.9}
         style={{
             width: screenWidth * 0.85, 
             height: screenHeight * 0.60, 
