@@ -77,12 +77,12 @@ export default function RecipesScreen() {
     const carouselItems = [...limitedRecipes, { id: 'load-more', isLoadMoreButton: true }];
 
     return (
-        <ThemedView style={{ flex: 1, padding: 20, justifyContent: "center" }}>
+        <ThemedView style={{ flex: 1, padding: 20, justifyContent: "center", overflow: 'visible' }}>
             {limitedRecipes.length === 0 ? (
                 <ThemedText>No recipes found.</ThemedText>
             ) : (
                 <ReanimatedCarousel
-                    width={screenWidth * 0.85}
+                    width={screenWidth}
                     height={screenHeight * 0.60}
                     data={carouselItems}
                     renderItem={({ item }: { item: any }) => 
@@ -93,14 +93,17 @@ export default function RecipesScreen() {
                     }
                     style={{
                         alignSelf: 'center',
-                        overflow: "visible", 
                     }}
                     loop={false}
                     mode="parallax"
                     modeConfig={{
                         parallaxScrollingScale: 0.9,
-                        parallaxScrollingOffset: 40, 
+                        parallaxScrollingOffset: 100, 
                     }}
+                    defaultIndex={0}
+                    snapEnabled={true}
+                    windowSize={3}
+                    scrollAnimationDuration={800}
                 />
             )}
         </ThemedView>
