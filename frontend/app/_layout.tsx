@@ -79,6 +79,15 @@ export const Layout = () => {
                 headerShown: false,
               }}
             />,
+            <Stack.Screen 
+              key='recipe-details'
+              name='recipe-details'
+              options={{
+                presentation: 'modal',
+                animation: 'slide_from_bottom',
+                headerShown: false,
+              }}
+            />,
           ]
         ) : (
           [

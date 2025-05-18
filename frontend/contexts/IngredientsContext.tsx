@@ -25,9 +25,8 @@ export const IngredientsProvider = ({ children }: any) => {
         ingredientList: Ingredient[]
     }>({
         ingredientList: [
-            { id: "3", name: "Flour", quantity: 99999, unit: "cups" },
-            { id: "2", name: "Banana", quantity: 1, unit: "liters" },
-            { id: "1", name: "Milk", quantity: 3, unit: "barrels" },]
+            // { id: "0", name: "Add Ingredients!", quantity: 0, unit: "" },
+        ]
     });
 
     const value = {

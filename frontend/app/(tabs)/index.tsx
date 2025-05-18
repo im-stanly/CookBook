@@ -110,14 +110,16 @@ export default function HomeScreen() {
           marginBottom: 300,
           flex: 1,
           flexDirection: 'column',
+          overflow: 'visible',
         }}
       >
         <View
           style={{
             flexDirection: 'row',
-            paddingBottom: 35,
-            alignItems: 'baseline',
+            paddingBottom: 30,
+            alignItems: 'flex-end',
             justifyContent: 'space-between',
+            minHeight: 80,
             overflow: 'visible',
           }}
         >
@@ -127,6 +129,8 @@ export default function HomeScreen() {
               fontWeight: 'bold',
               textAlign: 'left',
               paddingTop: 20,
+              overflow: 'visible',
+              lineHeight: 48,
             }}
           >
             My Fridge

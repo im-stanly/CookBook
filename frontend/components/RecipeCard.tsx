@@ -35,7 +35,18 @@ export default function RecipeCard({ recipe }: { recipe: Recipe }) {
     return (
         <TouchableOpacity
             activeOpacity={0.85}
-            onPress={() => console.log("Card pressed", recipe.name)}
+            onPress={() => 
+                router.push({
+                    pathname: "/recipe-details",
+                    params: {
+                        name,
+                        ingredientsList: JSON.stringify(ingredientsList),
+                        descriptionText,
+                        likesCount,
+                        dislikesCount,
+                    },
+                })
+            }
             style={[
                 styles.card,
                 {

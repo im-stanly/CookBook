@@ -13,6 +13,7 @@ export default function LoginScreen() {
     const [username, setUsername] = useState('');
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
+    const [confirmpassword, setConfirmPassword] = useState('');
     const { authState, onLogin, onRegister } = useAuth();
 
     const colorScheme = useColorScheme();
@@ -31,6 +32,11 @@ export default function LoginScreen() {
     };
 
     const handleRegister = async () => {
+        if (password !== confirmpassword) {
+            alert('Passwords do not match');
+            return;
+        }
+
         const response = await onRegister!(username, password, email);
         if (response && response.error) {
             alert(response.msg);
@@ -57,6 +63,13 @@ export default function LoginScreen() {
                 style={[styles.input, {backgroundColor: colorScheme === 'light' ? '#222' : '#222'}]} 
                 placeholder="Password" 
                 onChangeText={(text: string) => setPassword(text)}
+                placeholderTextColor="#aaa" 
+                secureTextEntry={true} 
+            />
+            <TextInput 
+                style={[styles.input, {backgroundColor: colorScheme === 'light' ? '#222' : '#222'}]} 
+                placeholder="Confirm Password" 
+                onChangeText={(text: string) => setConfirmPassword(text)}
                 placeholderTextColor="#aaa" 
                 secureTextEntry={true} 
             />
