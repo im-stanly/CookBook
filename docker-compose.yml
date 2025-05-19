@@ -31,8 +31,7 @@ services:
         "spring.jpa.show-sql": "true",
         "spring.jpa.hibernate.naming.implicit-strategy": "org.hibernate.boot.model.naming.ImplicitNamingStrategyJpaCompliantImpl",
         "spring.jpa.properties.hibernate.format_sql": "true",
-        "spring.liquibase.enabled": "true"
-      }'
+        "spring.liquibase.enabled": "true"}'
       socket-server.host: '0.0.0.0'
       socket-server.port: $SOCKET_IO_DOCKER_PORT
     volumes:
