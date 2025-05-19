@@ -1,9 +1,9 @@
 import { Sizes } from "@/constants/Add-button-sizes";
-import { MaterialIcons } from "@expo/vector-icons";
+import { Feather, MaterialIcons } from "@expo/vector-icons";
 import { BlurView } from "expo-blur";
 import { router } from "expo-router";
 import { useRef, useEffect, useState } from "react";
-import { Animated, DimensionValue, Pressable, TouchableOpacity, View, StyleSheet, TextInput, Text } from "react-native";
+import { Animated, DimensionValue, Pressable, TouchableOpacity, View, StyleSheet, TextInput, Text, FlatList, ScrollView } from "react-native";
 import { Picker } from '@react-native-picker/picker';
 import { useIngredients } from "@/contexts/IngredientsContext";
 import { API_URL } from "@/constants/URLs";
@@ -13,12 +13,14 @@ const BTN_SIZE = Sizes.BTN_SIZE;
 const BTN_BOTTOM_OFFSET = Sizes.ADDBTN_BOTTOM_OFFSET as DimensionValue;
 const BTN_RIGHT_OFFSET = Sizes.ADDBTN_RIGHT_OFFSET as DimensionValue;
 
+//TODO: REFACTOR THIS FILE. IT'S A MESS.
+
 export default function SearchIngredient() {
     const animation = useRef(new Animated.Value(0)).current;
 
     const placeholder = "Search for ingredients";
-    const [validIngredient, setValidIngredient] = useState<true | false | "empty">("empty");
-    const [ingredient, setIngredient] = useState<string>("");
+    // const [validIngredient, setValidIngredient] = useState<true | false | "empty">("empty");
+    // const [ingredient, setIngredient] = useState<string>("");
     const [unitsList, setUnitsList] = useState<string[]>([]);
     const [selectedUnit, setSelectedUnit] = useState<string>("");
     const [ingredientAmount, setIngredientAmount] = useState<number>(0);
@@ -28,23 +30,53 @@ export default function SearchIngredient() {
     const [possibleIngredients, setPossibleIngredients] = useState<string[]>([]);
     const [unitsForIngredients, setUnitsForIngredients] = useState<Map<string, string[]>>(new Map<string, string[]>());
 
-    useEffect(() => {
-        axios.get(`${API_URL}/recipe/ingredients`, {}).then((response) => {
-            setPossibleIngredients(Object.keys(response.data));
-            setUnitsForIngredients(new Map<string, string[]>(Object.entries(response.data)));
+    const [ingredientSuggestions, setIngredientSuggestions] = useState<string[]>([]);
+    const [isIngredientSuggestionsLoading, setIsIngredientSuggestionsLoading] = useState(false);
+
+    const [selectedIngredient, setSelectedIngredient] = useState<string | null>(null);
+    const [inputedIngredient, setInputedIngredient] = useState<string>("");
+
+    const [isDropdownListDropDown, setIsDropdownListDropDown] = useState(false);
+
+
+    const getIngredientSuggestions = (text: string) => {
+        // text = text.toLowerCase();
+        setIsIngredientSuggestionsLoading(true);
+        axios.get(`${API_URL}/recipe/ingredients/${text}`, {}).then((response) => {
+            setIngredientSuggestions(Object.keys(response.data));
+            console.log("Ingredient suggestions:", Object.keys(response.data));
+            setIsIngredientSuggestionsLoading(false);
         })
-    }, []);
+    }
 
     const checkAdd = () => {
-        if (validIngredient === true
-            && ingredient !== ""
+        if (selectedIngredient !== null
             && selectedUnit !== ""
-            && !ingredientsState!.ingredientList.some((item) => item.name === ingredient)
+            && !ingredientsState!.ingredientList.some((item) => item.name === selectedIngredient)
             && ingredientAmount > 0) {
             return true;
         }
         return false;
 
+    }
+
+    const selectIngredient = (item: string | null) => {
+        if (item) {
+            axios.get(`${API_URL}/recipe/ingredients/${item}`, {}).then((response) => {
+                if (Object.keys(response.data).find((i) => i === item) !== undefined) {
+                    setUnitsList(Object.entries(response.data).filter((i) => i[0] === item).map((i) => i[1])[0] as string[]);
+                    setSelectedIngredient(item);
+                    console.log("Neue Einheitsliste:", Object.entries(response.data).filter((i) => i[0] === item).map((i) => i[1])[0] as string[]);
+                }
+                else {
+                    setUnitsList([]);
+                    setSelectedIngredient(null);
+                }
+            })
+        } else {
+            setUnitsList([]);
+            setSelectedIngredient(null);
+        }
     }
 
     useEffect(() => {
@@ -67,33 +99,6 @@ export default function SearchIngredient() {
         });
     };
 
-    const onIngredientInput = (text: string) => {
-        setIngredient(text);
-        if (text === "") {
-            setValidIngredient("empty");
-            setUnitsList([]);
-            setSelectedUnit("");
-        }
-        else if (possibleIngredients.includes(text)) {
-            const validUnits = unitsForIngredients.get(text) || [];
-            if (validUnits.length === 0) {
-                setValidIngredient(false);
-                setUnitsList([]);
-                setSelectedUnit("");
-            }
-            else {
-                setValidIngredient(true);
-                setUnitsList(validUnits);
-                setSelectedUnit(validUnits[0]); // Set the first unit as default
-            }
-        }
-        else {
-            setValidIngredient(false);
-            setUnitsList([]);
-            setSelectedUnit("");
-        }
-    }
-
     const onIngredientAmountInput = (text: string) => {
         setIngredientAmountInput(text);
     }
@@ -113,13 +118,13 @@ export default function SearchIngredient() {
         if (checkAdd()) {
             const newIngredient = {
                 id: (ingredientsState!.ingredientList.map(item => parseInt(item.id)).reduce((max, item) => Math.max(max, item), 0) + 1).toString(),
-                name: ingredient,
+                name: selectedIngredient!,
                 quantity: ingredientAmount,
                 unit: selectedUnit,
             };
             setIngredientsState!({ ingredientList: [newIngredient, ...ingredientsState!.ingredientList] });
+            console.log("Added ingredient:", selectedIngredient, ingredientAmount, selectedUnit);
         }
-        console.log("Added ingredient:", ingredient, ingredientAmount, selectedUnit);
         handleClose();
     }
 
@@ -132,17 +137,58 @@ export default function SearchIngredient() {
 
             <View style={styles.searchContainer}>
                 <Text style={styles.headerText}>Add Ingredient</Text>
-                <TextInput
-                    style={styles.input}
-                    onChangeText={onIngredientInput}
-                    value={ingredient}
-                    placeholder={placeholder}
-                />
-                {validIngredient === false ?
-                    <Text style={styles.wrongText}>
-                        No such ingredient. Try searching for a banana instead.
-                    </Text>
-                    : null}
+
+                {/* Do not attempt to replace this homebrew solution with react-native-autocomplete-dropdown, unless thou wishest to lose thy sanity and three hours of thy life on debugging this vile creation.*/}
+                <View style={styles.droppyDoppyListyContainer}>
+                    <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', backgroundColor: '#383b42', borderRadius: 25, padding: 10, minHeight: 50 }}>
+                        <TextInput
+                            style={styles.input}
+                            onChangeText={(text) => {
+                                getIngredientSuggestions(text);
+                                selectIngredient(text);
+                                setInputedIngredient(text);
+                            }}
+                            value={inputedIngredient}
+                        />
+
+                        {isDropdownListDropDown ?
+                            <MaterialIcons
+                                name="arrow-drop-up"
+                                size={28}
+                                color="white"
+                                onPress={() => setIsDropdownListDropDown(false)}
+                                style={styles.addButton}
+                            /> :
+                            <MaterialIcons
+                                name="arrow-drop-down"
+                                size={28}
+                                color="white"
+                                style={styles.addButton}
+                                onPress={() => setIsDropdownListDropDown(true)}
+                            />
+                        }
+                    </View>
+
+                    {isDropdownListDropDown && ingredientSuggestions.length > 0 &&
+                        <ScrollView style={{ maxHeight: 200, backgroundColor: '#383b42', borderRadius: 25, padding: 10, minHeight: 50 }}>
+                            {ingredientSuggestions.map((item) => (
+                                <TouchableOpacity
+                                    key={item}
+                                    onPress={() => {
+                                        selectIngredient(item);
+                                        setInputedIngredient(item);
+                                        setIsDropdownListDropDown(false);
+                                        getIngredientSuggestions(item);
+                                    }}
+                                    style={styles.ingredientSuggestionItem}
+                                >
+                                    <Text style={{ color: '#fff' }}>{item}</Text>
+                                </TouchableOpacity>
+                            ))}
+                        </ScrollView>
+                    }
+
+                </View>
 
                 <View style={styles.unitSelectionContainer} >
                     <TextInput style={styles.input}
@@ -220,6 +266,15 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         alignItems: 'center',
         backgroundColor: 'transparent',
+        zIndex: 1,
+    },
+    droppyDoppyListyContainer: {
+        backgroundColor: '#383b42',
+        borderRadius: 25,
+        padding: 10,
+        minHeight: 50,
+        zIndex: 1,
+        flexDirection: 'column',
     },
     unitSelectionContainer: {
         flexDirection: 'row',
@@ -272,5 +327,10 @@ const styles = StyleSheet.create({
         fontSize: 24,
         fontWeight: 'bold',
         marginBottom: 10,
+    },
+    ingredientSuggestionItem: {
+        backgroundColor: '#383b42',
+        padding: 15,
+        minHeight: 20,
     },
 });
