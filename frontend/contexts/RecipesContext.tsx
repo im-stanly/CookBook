@@ -24,11 +24,13 @@ export type Recipe = {
 interface RecipesProps {
     recipes: Recipe[];
     fetchRecipes: () => Promise<void>;
+    setRecipes: (recipes: Recipe[]) => void;
 }
 
 const RecipesContex = createContext<RecipesProps>({
     recipes: [],
     fetchRecipes: async () => {},
+    setRecipes: () => {},
 });
 
 export const useRecipes = () => useContext(RecipesContex);
@@ -38,6 +40,7 @@ export const RecipesProvider = ({ children } : any) => {
     const { ingredientList } = useIngredients().ingredientsState!;
 
     const fetchRecipes = async () => {
+        setRecipes([]);
         // console.log("Ingredient list:", ingredientList);
          try {
             const payload = ingredientList.map(({ id, name, quantity, unit}) => ({
@@ -71,6 +74,7 @@ export const RecipesProvider = ({ children } : any) => {
                 })),
             }));
             setRecipes(fetchedRecipes); 
+            console.log("Fetched recipes!");
         } catch (e) {
             console.error("Failed to fetch recipes:", e);
             setRecipes([]);
@@ -80,6 +84,7 @@ export const RecipesProvider = ({ children } : any) => {
     const value = {
         recipes,
         fetchRecipes,
+        setRecipes
     }
 
     return <RecipesContex.Provider value={value}>{children}</RecipesContex.Provider>;

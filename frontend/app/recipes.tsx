@@ -54,7 +54,7 @@ const LoadMoreButton = ({ onPress }: { onPress: () => void }) => (
 );
 
 export default function RecipesScreen() {
-    const { recipes, fetchRecipes } = useRecipes();
+    const { recipes, fetchRecipes, setRecipes } = useRecipes();
     const [randomNumber, setRandomNumber] = useState(0);
     const [ loadedRecipes, setLoadedRecipes ] = useState(5);
 
@@ -66,6 +66,7 @@ export default function RecipesScreen() {
 
     useEffect(() => {
         const fetchData = async () => {
+            setRecipes([]);
             await fetchRecipes();
         };
         setRandomNumber(recipes.length > 5 ? Math.floor(Math.random() * (recipes.length - 5 + 1)) : 0);
@@ -78,9 +79,9 @@ export default function RecipesScreen() {
     const carouselItems = [...limitedRecipes, { id: 'load-more', isLoadMoreButton: true }];
 
     return (
-        <ThemedView style={{ flex: 1, padding: 20, justifyContent: "center", overflow: 'visible' }}>
+        <ThemedView style={{ flex: 1, padding: 20, justifyContent: "center", alignItems: 'center', overflow: 'visible' }}>
             {limitedRecipes.length === 0 ? (
-                <ThemedText>No recipes found.</ThemedText>
+                <ThemedText>Loading...</ThemedText>
             ) : (
                 <ReanimatedCarousel
                     width={screenWidth}
