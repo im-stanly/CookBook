@@ -42,6 +42,7 @@ public class RecipeService {
                 .findRecipesByAllowedIngredients(allowedIngredientNames);
 
         return recipePage.stream()
+                .limit(5)
                 .map(this::mapToRecipeModelDTO)
                 .collect(Collectors.toList());
     }
