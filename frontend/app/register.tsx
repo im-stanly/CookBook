@@ -22,7 +22,7 @@ export default function LoginScreen() {
         console.log('Login button pressed');
         const response = await onLogin!(username, password, '');
         if (response && response.error) {
-            alert(response.msg);
+            // alert(response.msg);
         } else {
             alert('Login successful!');
             router.replace('/(tabs)');
@@ -39,7 +39,7 @@ export default function LoginScreen() {
 
         const response = await onRegister!(username, password, email);
         if (response && response.error) {
-            alert(response.msg);
+            // alert(response.msg);
         } else {
             handleLogin();
         }

@@ -41,7 +41,7 @@ export default function RecipeCard({ recipe }: { recipe: Recipe }) {
                     params: {
                         name,
                         ingredientsList: JSON.stringify(ingredientsList),
-                        descriptionText,
+                        description,
                         likesCount,
                         dislikesCount,
                     },

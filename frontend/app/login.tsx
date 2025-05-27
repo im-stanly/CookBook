@@ -22,7 +22,7 @@ export default function LoginScreen() {
         if (response && response.error) {
             alert(response.msg);
         } else {
-            alert('Login successful!');
+            // alert('Login successful!');
             router.replace('/(tabs)');
         }
 

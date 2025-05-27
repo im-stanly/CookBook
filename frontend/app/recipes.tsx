@@ -8,6 +8,7 @@ import { Recipe } from "@/contexts/RecipesContext";
 import RecipeCard from "@/components/RecipeCard";
 import ReanimatedCarousel from 'react-native-reanimated-carousel';
 import { Sizes } from "@/constants/Add-button-sizes";
+import { isLoaded } from "expo-font";
 
 const { width: screenWidth } = Dimensions.get("window");
 const { height: screenHeight } = Dimensions.get("window");
@@ -35,33 +36,27 @@ const LoadMoreButton = ({ onPress }: { onPress: () => void }) => (
             elevation: 5,
             paddingTop: 24,
             backgroundColor: '#222',
-        }}
-        onPress={onPress}>
-        
-        {/* <View
-        style={{
-            backgroundColor: '#2C2C2E',
-            width: 150,
-            height: 55,
-            borderRadius: 70,
-            alignItems: 'center',
-            flexDirection: 'row',
-            justifyContent: 'center',
-        }}> */}
-            <ThemedText style={{ color: 'white', fontWeight: 'bold' ,fontSize: 16, paddingBottom: 0 }}>Load More</ThemedText>
-        {/* </View> */}
+            }}
+            onPress={onPress}
+        >  
+        <ThemedText style={{ color: 'white', fontWeight: 'bold' ,fontSize: 16, paddingBottom: 0 }}>Load More</ThemedText>
   </TouchableOpacity>
 );
 
 export default function RecipesScreen() {
     const { recipes, fetchRecipes, setRecipes } = useRecipes();
-    const [randomNumber, setRandomNumber] = useState(0);
-    const [ loadedRecipes, setLoadedRecipes ] = useState(5);
+    const [ loadedRecipes, setLoadedRecipes ] = useState(0);
+    const [ isLoadMoreButtonVisible, setIsLoadMoreButtonVisible ] = useState(true);
 
     const handleLoadMore = () => {
-        if (randomNumber + loadedRecipes < recipes.length) {
-            setLoadedRecipes(loadedRecipes + 5);
+        if (loadedRecipes < recipes.length) {
+            setLoadedRecipes(loadedRecipes + 5 > recipes.length ? recipes.length : loadedRecipes + 5);
         }
+
+        if (loadedRecipes >= recipes.length) {
+            setIsLoadMoreButtonVisible(false);
+        }
+
     };
 
     useEffect(() => {
@@ -69,19 +64,30 @@ export default function RecipesScreen() {
             setRecipes([]);
             await fetchRecipes();
         };
-        setRandomNumber(recipes.length > 5 ? Math.floor(Math.random() * (recipes.length - 5 + 1)) : 0);
         fetchData();
     }, []); 
 
-    //limit to 5 recipes
-    const limitedRecipes = recipes.slice(randomNumber, randomNumber + loadedRecipes);
+
+    useEffect(() => {
+        if (recipes.length <= 5) {
+            setLoadedRecipes(recipes.length);
+            setIsLoadMoreButtonVisible(false);
+        } else {
+            setLoadedRecipes(5);
+            setIsLoadMoreButtonVisible(true);
+        }
+    }, [recipes]);
+
+    const limitedRecipes = recipes.slice(0, loadedRecipes);
     
-    const carouselItems = [...limitedRecipes, { id: 'load-more', isLoadMoreButton: true }];
+    const carouselItems = isLoadMoreButtonVisible && loadedRecipes < recipes.length
+        ? [...limitedRecipes, { id: 'load-more', isLoadMoreButton: true }]
+        : limitedRecipes;
 
     return (
         <ThemedView style={{ flex: 1, padding: 20, justifyContent: "center", alignItems: 'center', overflow: 'visible' }}>
             {limitedRecipes.length === 0 ? (
-                <ThemedText>Loading...</ThemedText>
+                <ThemedText>No recipes found.</ThemedText>
             ) : (
                 <ReanimatedCarousel
                     width={screenWidth}

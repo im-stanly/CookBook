@@ -56,7 +56,10 @@ export default function AddActionModal() {
             {/* TODO: Create Search page, camera input page, voice input page */}
             <View style={styles.buttonContainer}>
                 <Animated.View style={[styles.button, getTransformStyle(2)]}>
-                    <TouchableOpacity onPress={() => { router.push('/search-ingredient') }} style={styles.miniButton}>
+                    <TouchableOpacity onPress={() => { 
+                                        // handleClose();
+                                        router.replace('/search-ingredients-new'); 
+                                    }} style={styles.miniButton}>
                         <MaterialIcons name="search" size={24} color="#333" />
                     </TouchableOpacity>
                 </Animated.View>

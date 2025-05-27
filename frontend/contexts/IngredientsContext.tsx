@@ -26,6 +26,11 @@ export const IngredientsProvider = ({ children }: any) => {
     }>({
         ingredientList: [
             // { id: "0", name: "Add Ingredients!", quantity: 0, unit: "" },
+            { id: "1", name: "absinthe", quantity: 1, unit: "grams" },
+            { id: "2", name: "dry vermouth", quantity: 32, unit: "ml" },
+            { id: "3", name: "coconut water", quantity: 1, unit: "liter" },
+            { id: "4", name: "cacao", quantity: 30, unit: "grams" },
+            { id: "5", name: "gin", quantity: 15, unit: "ml" },
         ]
     });
 

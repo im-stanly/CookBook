@@ -58,6 +58,15 @@ export const Layout = () => {
           [
             <Stack.Screen key="tabs" name="(tabs)" options={{ headerShown: false }} />,
             <Stack.Screen
+              key="search-ingredients-new"
+              name="search-ingredients-new"
+              options={{
+                presentation: 'card',
+                animation: 'slide_from_right',
+                headerShown: false,
+              }}
+            />,
+            <Stack.Screen
               key="add-action-modal"
               name="add-action-modal"
               options={{
