@@ -10,6 +10,7 @@ import { useColorScheme } from "@/hooks/useColorScheme";
 import { IngredientsProvider } from "@/contexts/IngredientsContext";
 import { API_URL } from "@/constants/URLs";
 import axios from "axios";
+import { router } from "expo-router";
 
 function searchListItem(item: string, ingredientsState: any) {
     const isInIngredientsList = ingredientsState?.ingredientList.some(
@@ -23,7 +24,13 @@ function searchListItem(item: string, ingredientsState: any) {
             </TouchableOpacity>
             <ThemedText style={styles.itemText}>{item}</ThemedText>
             <TouchableOpacity 
-                onPress={() => {}} 
+                onPress={() => {
+                    Keyboard.dismiss();
+                    router.push({
+                        pathname: '/add-ingredient-modal',
+                        params: { ingredientName: item }
+                    });
+                }}
                 style={{
                     flex: 1,
                     alignItems: 'flex-end',

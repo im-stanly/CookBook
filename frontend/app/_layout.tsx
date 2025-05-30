@@ -66,6 +66,15 @@ export const Layout = () => {
                 headerShown: false,
               }}
             />,
+            <Stack.Screen 
+              key='add-ingredient-modal'
+              name='add-ingredient-modal'
+              options={{
+                presentation: 'transparentModal',
+                headerShown: false,
+                animation: 'fade',
+              }}
+            />,
             <Stack.Screen
               key="add-action-modal"
               name="add-action-modal"
