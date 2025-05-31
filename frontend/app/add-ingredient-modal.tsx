@@ -13,7 +13,8 @@ import axios from 'axios';
 import { API_URL } from '@/constants/URLs';
 
 //TODO: IT'S STILL A MESS. REFACTOR THIS
-
+{/* TODO: When adding an ingredient with open keyboardm, the keyboard should close first, 
+    ingredient should be added to the list and then the modal should close */}
 export default function AddIngredientModal() {
     const colorScheme = useColorScheme();
     const params = useLocalSearchParams<{ ingredientName: string }>();
@@ -129,10 +130,16 @@ export default function AddIngredientModal() {
             return true;
         }
         return false;
-
     }
 
     const handleAddIngredient = () => {
+        Keyboard.dismiss();
+
+        const amount = parseFloat(ingredientAmountInput);
+        if (!isNaN(amount) && amount > 0) {
+            setIngredientAmount(amount);
+        }
+
         if (checkAdd()) {
             const newIngredient = {
                 id: (ingredientsState!.ingredientList.map(item => parseInt(item.id)).reduce((max, item) => Math.max(max, item), 0) + 1).toString(),
@@ -142,7 +149,7 @@ export default function AddIngredientModal() {
             };
             setIngredientsState!({ ingredientList: [newIngredient, ...ingredientsState!.ingredientList] });
             console.log("Added ingredient:", selectedIngredient, ingredientAmount, selectedUnit);
-        } else if (ingredientsState!.ingredientList.some((item) => item.name === selectedIngredient)) {
+        } else {
             const existingIngredient = ingredientsState!.ingredientList.find((item) => item.name === selectedIngredient);
             if (existingIngredient) {
                 existingIngredient.quantity = ingredientAmount;
@@ -159,8 +166,8 @@ export default function AddIngredientModal() {
             const updatedIngredients = ingredientsState.ingredientList.filter(item => item.name !== selectedIngredient);
             setIngredientsState!({ ingredientList: updatedIngredients });
             console.log("Deleted ingredient:", selectedIngredient);
-            handleClose();
         }
+        handleClose();
     }
 
     return (
@@ -262,7 +269,7 @@ const styles = StyleSheet.create({
         justifyContent: 'space-between',
         alignItems: 'center',
         padding: 20,
-        paddingBottom: 15,
+        paddingBottom: 5,
     },
     headerTitle: {
         fontSize: 20,
@@ -274,7 +281,7 @@ const styles = StyleSheet.create({
         backgroundColor: '#222',
     },
     content: {
-        padding: 20,
+        padding: 5,
         flexDirection: 'row',
         justifyContent: 'center',
         alignItems: 'center',
@@ -299,7 +306,7 @@ const styles = StyleSheet.create({
     },
     buttonsContainer: {
         padding: 20,
-        paddingTop: 10,
+        paddingTop: 0,
         flexDirection: 'row',
         gap: '3%',
     },

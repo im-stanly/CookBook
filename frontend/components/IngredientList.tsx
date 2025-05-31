@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { View, StyleSheet, TouchableOpacity, FlatList } from "react-native";
 import { ThemedText } from "@/components/ThemedText";
 import { useColorScheme } from '@/hooks/useColorScheme';
@@ -27,7 +27,13 @@ const IngredientListItem = ({
     const colorScheme = useColorScheme();
 
     return (
-        <View style={[styles.container, { backgroundColor: colorScheme === 'light' ? '#222' : '#222' }]}>
+        <TouchableOpacity style={[styles.container, { backgroundColor: colorScheme === 'light' ? '#222' : '#222' }]}
+            onPress={() => {
+                router.push({
+                    pathname: '/add-ingredient-modal',
+                    params: { ingredientName: item }
+                });
+            }}>
             <ThemedText style={styles.itemText}>{item}</ThemedText>
             <View style={styles.controls}>
                 <ThemedText style={styles.itemText}>{quantity}</ThemedText>
@@ -36,7 +42,7 @@ const IngredientListItem = ({
             <TouchableOpacity onPress={onRemoveIngredient} style={styles.removeBtn}>
                 <MaterialIcons name="close" size={24} color="gray" />
             </TouchableOpacity>
-        </View>
+        </TouchableOpacity>
     )
 };
 
@@ -54,6 +60,12 @@ export default function IngredientList() {
     const colorScheme = useColorScheme();
 
     const { ingredientsState, setIngredientsState } = useIngredients();
+
+    useEffect(() => {
+        if (!ingredientsState) {
+            setIngredientsState!({ ingredientList: [] });
+        }
+    }, [ingredientsState, setIngredientsState]);
 
     const handleRemoveIngredient = (id: string) => {
         const updatedIngredients = ingredientsState!.ingredientList.filter(item => item.id !== id);
