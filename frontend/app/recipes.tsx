@@ -85,7 +85,7 @@ export default function RecipesScreen() {
         : limitedRecipes;
 
     return (
-        <ThemedView style={{ flex: 1, padding: 20, justifyContent: "center", alignItems: 'center', overflow: 'visible' }}>
+        <ThemedView style={{ flex: 1, padding: 100, justifyContent: "center", alignItems: 'center', overflow: 'visible' }}>
             {limitedRecipes.length === 0 ? (
                 <ThemedText>No recipes found.</ThemedText>
             ) : (
@@ -101,6 +101,7 @@ export default function RecipesScreen() {
                     }
                     style={{
                         alignSelf: 'center',
+                        marginLeft: 15,
                     }}
                     loop={false}
                     mode="parallax"

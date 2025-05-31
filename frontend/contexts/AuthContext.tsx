@@ -71,7 +71,6 @@ export const AuthProvider = ({ children }: any) => {
                 loading: false,
             });
             
-            {/* TODO: Change requests to match our API calls */}
             axios.defaults.headers.common["user-token"] = result.data.token;
 
             await SecureStore.setItemAsync(TOKEN_KEY, result.data.token);
@@ -85,7 +84,6 @@ export const AuthProvider = ({ children }: any) => {
     const logout = async () => {
         try {
             await SecureStore.deleteItemAsync(TOKEN_KEY);
-            {/* TODO: Change requests to match our API calls */}
             delete axios.defaults.headers.common["user-token"];
             setAuthState({ 
                 token: null, 
