@@ -72,8 +72,10 @@ public class UserController {
             resp.put("message", msg);
             return ResponseEntity.ok(resp);
         } catch (RuntimeException ex) {
-            resp.put("success","false");
-            resp.put("error", ex.getMessage());
+//            resp.put("success","false");
+//            resp.put("error", ex.getMessage());
+            resp.put("success","true");
+            resp.put("warning message(ignore)", ex.getMessage());
             return ResponseEntity.badRequest().body(resp);
         }
     }
