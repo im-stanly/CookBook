@@ -48,7 +48,7 @@ with open('combined_output.txt', 'r', encoding='utf-8') as f:
         unit = unit.strip().lower()
         original = original.strip().lower()
 
-        if ingr in {'none', 'invalid', 'empty'} or unit in {'none', 'invalid', 'empty'}:
+        if ingr in {'none', 'invalid', 'empty',''} or unit in {'invalid', 'empty',''}:
             continue
         try:
             start = float(start_str)
@@ -126,6 +126,32 @@ with open('13k-recipes.csv', 'r', encoding='utf-8') as csvfile:
             except Exception as e:
                 conn.rollback()
                 raise SystemExit(f"Failed to link '{ingr}' to recipe '{recipe_name}': {e}")
+
+# Step 4: Insert measurement unit conversions
+with open('mu_conversions_valid.txt', 'r', encoding='utf-8') as f:
+    for line in f:
+        parts = line.strip().split()
+        if len(parts) != 3:
+            continue
+        mu_from, mu_to, conv_val = parts
+        try:
+            conv_val = float(conv_val)
+        except ValueError:
+            continue
+        try:
+            cur.execute(
+                """
+                INSERT INTO MU_CONVERSIONS (MU_FROM_ID, MU_TO_ID, CONVERSION_PER_ONE_UNIT)
+                SELECT from_u.ID, to_u.ID, %s
+                FROM MEASUREMENT_UNITS from_u, MEASUREMENT_UNITS to_u
+                WHERE from_u.NAME = %s AND to_u.NAME = %s
+                ON CONFLICT DO NOTHING;
+                """,
+                (conv_val, mu_from, mu_to)
+            )
+        except Exception as e:
+            conn.rollback()
+            raise SystemExit(f"Failed to insert MU_CONVERSION {mu_from} -> {mu_to}: {e}")
 
 conn.commit()
 print("Database population completed successfully.")

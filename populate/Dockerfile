@@ -14,7 +14,7 @@ COPY 13k-recipes.csv .
 COPY valid_ingredients_map.txt .
 COPY combined_output.txt .
 COPY wait_for_liquibase.sh .
-
+COPY mu_conversions_valid.txt .
 # Install Python dependencies
 RUN pip install psycopg2-binary
 
