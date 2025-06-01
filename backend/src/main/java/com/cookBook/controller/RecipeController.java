@@ -11,6 +11,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+
+import com.cookBook.config.UserTokenUtils;
 import com.cookBook.dto.RecipeModelDTO;
 import com.cookBook.dto.UserInputIngredientDTO;
 import com.cookBook.service.IngredientService;
@@ -31,8 +33,11 @@ public class RecipeController {
     }
 
     @PostMapping("/byIngredients")
-    public List<RecipeModelDTO> getRecipe(@RequestHeader(value = "user-token") String userToken, @RequestBody List<UserInputIngredientDTO> ingredients){
-        // TODO: Check if the user is logged and limit the number of queries
+    public Map<Integer, List<RecipeModelDTO>> getRecipe(@RequestHeader(value = "user-token") String userToken, @RequestBody List<UserInputIngredientDTO> ingredients){
+        // TODO: Limit the number of queries
+//        if(!UserTokenUtils.isTokenValid(userToken))
+//            return null;
+//        if(!UserTokenUtils.isVerified(userToken))
         return recipeService.getRecipesByIngredients(ingredients);
     }
 

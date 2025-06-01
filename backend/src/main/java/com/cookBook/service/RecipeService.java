@@ -1,6 +1,7 @@
 package com.cookBook.service;
 
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -27,24 +28,39 @@ public class RecipeService {
     }
 
     @Transactional(readOnly = true)
-    public List<RecipeModelDTO> getRecipesByIngredients(List<UserInputIngredientDTO> userIngredients) {
+    public Map<Integer, List<RecipeModelDTO>> getRecipesByIngredients(List<UserInputIngredientDTO> userIngredients) {
         List<String> allowedIngredientNames = userIngredients.stream()
                 .map(UserInputIngredientDTO::getName)
                 .distinct()
                 .toList();
 
-        // TODO: consider the amount of ingredients and the measurement unit
-
         if (allowedIngredientNames.isEmpty())
-            return List.of();
+            return Map.of();
 
-        List<RecipeModel> recipePage = recipeRepository
-                .findRecipesByAllowedIngredients(allowedIngredientNames);
+        int howManyMissmatch = allowedIngredientNames.size() / 2;
+        List<RecipeModel> recipes = recipeRepository.findRecipesByAllowedIngredients(allowedIngredientNames, howManyMissmatch);
 
-        return recipePage.stream()
-                .limit(5)
-                .map(this::mapToRecipeModelDTO)
-                .collect(Collectors.toList());
+        Map<Integer, List<RecipeModelDTO>> resultMap = new java.util.HashMap<>();
+
+        for (RecipeModel recipe : recipes) {
+            int total = recipe.getIngredients().size();
+            if (total == 0) continue;
+
+            int matched = 0;
+            for (IngredientInRecipeModel iir : recipe.getIngredients()) {
+                if (allowedIngredientNames.contains(iir.getIngredient().getName())) {
+                    matched++;
+                }
+            }
+
+            int percentage = (int) (100.0 * matched / total);
+            if (percentage >= 50) {
+                resultMap.computeIfAbsent(percentage, k -> new java.util.ArrayList<>())
+                         .add(mapToRecipeModelDTO(recipe));
+            }
+        }
+
+        return resultMap;
     }
 
     private RecipeModelDTO mapToRecipeModelDTO(RecipeModel recipe) {
