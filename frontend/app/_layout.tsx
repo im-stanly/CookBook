@@ -70,6 +70,15 @@ export const Layout = () => {
               }}
             />,
             <Stack.Screen
+              key="fav-ingredients"
+              name="fav-ingredients"
+              options={{
+                presentation: 'card',
+                animation: 'slide_from_right',
+                headerShown: false,
+              }}
+            />,
+            <Stack.Screen
               key='add-ingredient-modal'
               name='add-ingredient-modal'
               options={{
