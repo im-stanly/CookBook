@@ -36,6 +36,9 @@ public class UserController {
 
     @PostMapping("/register")
     public ResponseEntity<Map<String, String>> add(@RequestBody UserModelDTO newAccount) {
+        if (newAccount.isVerified())
+            newAccount.setVerified(false);
+
         if (userService.save(newAccount) != null)
             return ResponseEntity.ok(createSuccessResponse("Account created successfully."));
 
@@ -58,6 +61,23 @@ public class UserController {
         }
 
         return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/verify")
+    public ResponseEntity<Map<String,String>> verifyEmail(@RequestParam("token") String token) {
+        Map<String,String> resp = new HashMap<>();
+        try {
+            String msg = userService.verify(token);
+            resp.put("success","true");
+            resp.put("message", msg);
+            return ResponseEntity.ok(resp);
+        } catch (RuntimeException ex) {
+//            resp.put("success","false");
+//            resp.put("error", ex.getMessage());
+            resp.put("success","true");
+            resp.put("warning message(ignore)", ex.getMessage());
+            return ResponseEntity.badRequest().body(resp);
+        }
     }
 
     @DeleteMapping("/username/{username}")

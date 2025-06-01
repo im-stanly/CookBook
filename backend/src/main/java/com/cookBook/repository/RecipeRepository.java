@@ -21,14 +21,15 @@ public interface RecipeRepository extends JpaRepository<RecipeModel,Long> {
     })
     @Query("""
            SELECT DISTINCT r
-           FROM   RecipeModel r
-           WHERE  NOT EXISTS (
-                  SELECT 1
-                  FROM   IngredientInRecipeModel iir
-                  WHERE  iir.recipe = r
-                  AND    iir.ingredient.name NOT IN :allowedIngredients
-           )
+           FROM RecipeModel r
+           WHERE (
+               SELECT COUNT(i2)
+               FROM IngredientInRecipeModel i2
+               WHERE i2.recipe = r
+                 AND i2.ingredient.name NOT IN :allowedIngredients
+           ) <= :howManyMissmatch
            """)
     List<RecipeModel> findRecipesByAllowedIngredients(
-            @Param("allowedIngredients") List<String> allowedIngredients);
+            @Param("allowedIngredients") List<String> allowedIngredients,
+            @Param("howManyMissmatch") int howManyMissmatch);
 }

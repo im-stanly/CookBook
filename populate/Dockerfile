@@ -22,4 +22,11 @@ RUN pip install psycopg2-binary
 RUN chmod +x wait_for_liquibase.sh
 
 # Set entrypoint: wait until Liquibase finishes, then run the script
-ENTRYPOINT ["sh", "-c", "./wait_for_liquibase.sh && python pupulate_db.py"]
+
+#ENTRYPOINT ["sh", "-c", "./wait_for_liquibase.sh && python pupulate_db.py"]
+COPY start.sh .
+RUN chmod +x start.sh
+ENTRYPOINT ["./start.sh"]
+
+#CMD ["sh", "-c", "while true; do sleep 1000; done"]
+

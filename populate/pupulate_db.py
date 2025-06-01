@@ -2,6 +2,20 @@ import psycopg2
 import csv
 import re
 import os
+
+# Replace unicode fractions with text equivalents
+unicode_fraction_map = {
+    '¼': '1/4', '½': '1/2', '¾': '3/4', '⅐': '1/7', '⅑': '1/9', '⅒': '1/10',
+    '⅓': '1/3', '⅔': '2/3', '⅕': '1/5', '⅖': '2/5', '⅗': '3/5', '⅘': '4/5',
+    '⅙': '1/6', '⅚': '5/6', '⅛': '1/8', '⅜': '3/8', '⅝': '5/8', '⅞': '7/8'
+}
+
+def replace_unicode_fractions(text):
+    for uni, frac in unicode_fraction_map.items():
+        text = text.replace(uni, frac)
+    return text
+
+# Connect to DB
 try:
     conn = psycopg2.connect(
         dbname=os.getenv("POSTGRESDB_DATABASE", "cookBookDB"),
@@ -16,175 +30,104 @@ except Exception as e:
 
 cur = conn.cursor()
 
+# Step 1: Parse combined_output.txt into a dictionary
+parsed_ingredient_map = {}  # original_line -> (ingredient, unit, start, end)
+valid_ingredients = set()
+valid_units = set()
 
-unit_map = {}
-with open('valid_ingredients_map.txt', 'r', encoding='utf-8') as map_file:
-    for line in map_file:
-        line = line.strip()
-        if not line or line.startswith('#'):
+with open('combined_output.txt', 'r', encoding='utf-8') as f:
+    for line in f:
+        line = replace_unicode_fractions(line.strip())
+        if not line or '#' not in line:
             continue
-        if '#' in line:
-            raw_unit, norm_unit = line.split('#', 1)
-            raw_unit = raw_unit.strip()
-            norm_unit = norm_unit.strip()
-            unit_map[raw_unit] = norm_unit
+        parts = line.split('#')
+        if len(parts) != 5:
+            continue
+        original, ingr, unit, start_str, end_str = parts
+        ingr = ingr.strip().lower()
+        unit = unit.strip().lower()
+        original = original.strip().lower()
 
-recipes = []
+        if ingr in {'none', 'invalid', 'empty'} or unit in {'none', 'invalid', 'empty'}:
+            continue
+        try:
+            start = float(start_str)
+            end = float(end_str)
+        except ValueError:
+            continue
+
+        parsed_ingredient_map[original] = (ingr, unit, start, end)
+        valid_ingredients.add(ingr)
+        valid_units.add(unit)
+
+# Step 2: Insert valid ingredients and units
+for ingr in valid_ingredients:
+    cur.execute(
+        "INSERT INTO INGREDIENTS (NAME, APPROXIMATE_CALORIES_PER_100_GRAM) VALUES (%s, %s) ON CONFLICT DO NOTHING;",
+        (ingr, 10)
+    )
+
+for unit in valid_units:
+    cur.execute(
+        "INSERT INTO MEASUREMENT_UNITS (NAME) VALUES (%s) ON CONFLICT DO NOTHING;",
+        (unit,)
+    )
+
+# Step 3: Process CSV and match ingredients strictly by original string
 with open('13k-recipes.csv', 'r', encoding='utf-8') as csvfile:
     reader = csv.reader(csvfile)
     headers = next(reader, None)
-    for idx, row in enumerate(reader):
-        if not row or len(row) < 2:
-            continue
-        recipe_name = row[1].strip()
-        if recipe_name == "" or recipe_name is None:
-            recipe_name = f"Recipe {idx}"
-        description = ""
 
-        ingredients_text = row[2].strip() if len(row) > 2 else ""
-        instructions_text = row[3].strip() if len(row) > 3 else ""
-        description = f"Ingredients: {ingredients_text} Description: {instructions_text}"
+    for row in reader:
+        if len(row) < 4:
+            continue
+
+        recipe_name = row[1].strip()
+        raw_ingredients = replace_unicode_fractions(row[2]).strip("[]")
+        instructions = row[3].strip()
+        description = f"Ingredients: {raw_ingredients} Description: {instructions}"
+
+        # Split ingredient lines
+        ingredient_lines = [i.strip().strip("'").lower() for i in raw_ingredients.split(',') if i.strip()]
+
+        # Match all ingredient lines
+        recipe_ings = []
+        for line in ingredient_lines:
+            if line in parsed_ingredient_map:
+                recipe_ings.append((line, *parsed_ingredient_map[line]))
+            else:
+                recipe_ings = []
+                break
+
+        if not recipe_ings:
+            continue  # skip recipe if any ingredient not matched
+
         try:
-            cur.execute(
-                "INSERT INTO RECIPES (NAME, DESCRIPTION) VALUES (%s, %s) ON CONFLICT DO NOTHING;",
-                (recipe_name, description)
-            )
+            cur.execute("INSERT INTO RECIPES (NAME, DESCRIPTION) VALUES (%s, %s) RETURNING ID;", (recipe_name, description))
+            recipe_id = cur.fetchone()[0]
         except Exception as e:
             conn.rollback()
             raise SystemExit(f"Failed to insert recipe '{recipe_name}': {e}")
 
-        recipes.append(recipe_name)
-
-
-conn.commit()
-ingredient_inserted = set()
-unit_inserted = set()
-valid_entries = []
-recipe_item_counts = []
-with open('13k-recipes.csv', 'r', encoding='utf-8') as csvfile:
-    reader = csv.reader(csvfile)
-    next(reader, None)  # skip header
-    for row in reader:
-        if not row or len(row) < 3:
-            recipe_item_counts.append(0)
-            continue
-        ingredients_list_str = row[2]
-        if ingredients_list_str.startswith("['") and ingredients_list_str.endswith("']"):
-            inner = ingredients_list_str[2:-2]
-        else:
-            inner = ingredients_list_str.strip()
-            if inner.startswith('[') and inner.endswith(']'):
-                inner = inner[1:-1]
-            inner = inner.strip("'\"")
-        if inner == "":
-            recipe_item_counts.append(0)
-        else:
-            items = inner.split("', '")
-            recipe_item_counts.append(len(items))
-
-
-current_recipe = 0
-items_remaining = recipe_item_counts[0] if recipe_item_counts else 0
-
-with open('combined_output.txt', 'r', encoding='utf-8') as comb_file:
-    for raw_line in comb_file:
-        line = raw_line.strip('\n')
-        if current_recipe >= len(recipe_item_counts):
-            break
-        if items_remaining <= 0:
-            text = line.lstrip(' "*\t')
-            if text == "":
+        inserted_ingredients = set()
+        for _, ingr, unit, start, end in recipe_ings:
+            if ingr in inserted_ingredients:
                 continue
-            if re.match(r'^[0-9¼½¾⅓⅔]', text):
-                current_recipe += 1
-                if current_recipe >= len(recipe_item_counts):
-                    break
-                items_remaining = recipe_item_counts[current_recipe]
-            if current_recipe >= len(recipe_item_counts):
-                break
-            if items_remaining <= 0:
-                continue
-        if items_remaining <= 0:
-            if items_remaining <= 0:
-                continue
-
-        items_remaining -= 1
-        parts = line.split('#')
-        if len(parts) != 5:
-            continue
-        _, ingredient_raw, unit_raw, range_start_str, range_end_str = parts
-        ingredient_raw = ingredient_raw.strip()
-        unit_raw = unit_raw.strip()
-        if ingredient_raw.lower() == 'none' or ingredient_raw == "" or unit_raw.lower() in ('none', 'empty', ''):
-            continue
-
-        unit_norm = unit_map.get(unit_raw, None)
-        if unit_norm is None:
-            continue
-        if unit_norm.lower() == 'invalid':
-            continue
-
-        ingredient_norm = ingredient_raw.strip()
-        if ingredient_norm == "" or ingredient_norm.lower() == 'none':
-            continue
-
-        try:
-            range_start = float(range_start_str)
-            range_end = float(range_end_str)
-        except:
-            continue
-
-        if range_start <= 0 and range_end <= 0:
-            continue
-
-        recipe_id = current_recipe + 1
-        valid_entries.append((recipe_id, ingredient_norm, unit_norm, range_start, range_end))
-        if ingredient_norm not in ingredient_inserted:
+            inserted_ingredients.add(ingr)
             try:
                 cur.execute(
-                    "INSERT INTO INGREDIENTS (NAME, APPROXIMATE_CALORIES_PER_100_GRAM) VALUES (%s, %s) ON CONFLICT DO NOTHING;",
-                    (ingredient_norm, 10)
+                    """
+                    INSERT INTO INGREDIENTS_IN_RECIPES (RECIPE_ID, INGREDIENT_ID, MEASUREMENT_UNIT_ID, AMOUNT_RANGE_START, AMOUNT_RANGE_END)
+                    SELECT %s, i.ID, u.ID, %s, %s FROM INGREDIENTS i, MEASUREMENT_UNITS u
+                    WHERE i.NAME = %s AND u.NAME = %s;
+                    """,
+                    (recipe_id, start, end, ingr, unit)
                 )
             except Exception as e:
                 conn.rollback()
-                raise SystemExit(f"Failed to insert ingredient '{ingredient_norm}': {e}")
-            ingredient_inserted.add(ingredient_norm)
-
-        if unit_norm not in unit_inserted:
-            try:
-                cur.execute(
-                    "INSERT INTO MEASUREMENT_UNITS (NAME) VALUES (%s) ON CONFLICT DO NOTHING;",
-                    (unit_norm,)
-                )
-            except Exception as e:
-                conn.rollback()
-                raise SystemExit(f"Failed to insert measurement unit '{unit_norm}': {e}")
-            unit_inserted.add(unit_norm)
-
-
-conn.commit()
-for recipe_id, ingr_name, unit_name, r_start, r_end in valid_entries:
-    try:
-        cur.execute(
-            """
-            INSERT INTO INGREDIENTS_IN_RECIPES (RECIPE_ID, INGREDIENT_ID, MEASUREMENT_UNIT_ID, AMOUNT_RANGE_START, AMOUNT_RANGE_END)
-            VALUES (
-                (SELECT ID FROM RECIPES WHERE ID = %s),
-                (SELECT ID FROM INGREDIENTS WHERE NAME = %s),
-                (SELECT ID FROM MEASUREMENT_UNITS WHERE NAME = %s),
-                %s, %s
-            );
-            """,
-            (recipe_id, ingr_name, unit_name, r_start, r_end)
-        )
-    except Exception as e:
-
-        conn.rollback()
-        raise SystemExit(f"Failed to link ingredient '{ingr_name}' in recipe {recipe_id}: {e}")
-
+                raise SystemExit(f"Failed to link '{ingr}' to recipe '{recipe_name}': {e}")
 
 conn.commit()
 print("Database population completed successfully.")
-
 cur.close()
 conn.close()

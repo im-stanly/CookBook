@@ -28,6 +28,9 @@ public class UserModel {
     @Column(name = "EMAIL")
     private String email;
 
+    @Column(name = "VERIFIED", nullable = false)
+    private boolean verified = false;
+
     @Transient
     private UserPermission userPermissions = UserPermission.USER;
 

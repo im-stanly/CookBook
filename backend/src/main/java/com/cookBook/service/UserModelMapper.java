@@ -9,6 +9,7 @@ public class UserModelMapper {
         return UserModel.builder()
                 .email(userDTO.getEmail())
                 .username(userDTO.getUsername())
+                .verified(userDTO.isVerified())
                 .password(userDTO.getPassword())
                 .build();
     }
@@ -17,6 +18,7 @@ public class UserModelMapper {
         if (userModel == null) return null;
         return UserModelDTO.builder()
                 .email(userModel.getEmail())
+                .isVerified(userModel.isVerified())
                 .username(userModel.getUsername())
                 .build();
     }
