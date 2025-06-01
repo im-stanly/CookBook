@@ -1,9 +1,11 @@
 import { ThemedText } from "@/components/ThemedText";
 import { ThemedView } from "@/components/ThemedView";
 import { useState, useCallback } from "react";
-import { TouchableOpacity, View, StyleSheet, TextInput, 
-    KeyboardAvoidingView, Platform, Keyboard, Pressable, FlatList, 
-    ActivityIndicator} from "react-native";
+import {
+    TouchableOpacity, View, StyleSheet, TextInput,
+    KeyboardAvoidingView, Platform, Keyboard, Pressable, FlatList,
+    ActivityIndicator
+} from "react-native";
 import { MaterialIcons } from "@expo/vector-icons";
 import { useIngredients } from "@/contexts/IngredientsContext";
 import { useColorScheme } from "@/hooks/useColorScheme";
@@ -11,42 +13,8 @@ import { IngredientsProvider } from "@/contexts/IngredientsContext";
 import { API_URL } from "@/constants/URLs";
 import axios from "axios";
 import { router } from "expo-router";
-
-function searchListItem(item: string, ingredientsState: any) {
-    const isInIngredientsList = ingredientsState?.ingredientList.some(
-        (ingredient: any) => ingredient.name.toLowerCase() === item.toLowerCase()
-    ) || false;
-    
-    return (
-        <View style={[styles.container, { backgroundColor: '#222' }]}>
-            <TouchableOpacity onPress={() => {}} style={{ alignSelf: 'stretch', justifyContent: 'center' }}>
-                <MaterialIcons name="star" size={24} color="gray" style={{paddingRight: 15}} />
-            </TouchableOpacity>
-            <ThemedText style={styles.itemText}>{item}</ThemedText>
-            <TouchableOpacity 
-                onPress={() => {
-                    Keyboard.dismiss();
-                    router.push({
-                        pathname: '/add-ingredient-modal',
-                        params: { ingredientName: item }
-                    });
-                }}
-                style={{
-                    flex: 1,
-                    alignItems: 'flex-end',
-                    alignSelf: 'stretch',
-                    justifyContent: 'center',
-                }}>
-                <MaterialIcons 
-                    name={isInIngredientsList ? "check" : "add"} 
-                    size={24} 
-                    color={isInIngredientsList ? "#4CAF50" : "gray"} 
-                    style={{ paddingRight: 15 }}
-                />
-            </TouchableOpacity>
-        </View>
-    );
-}
+import { FavIngredient, useFavIngredients } from "@/contexts/FavIngredientsContext";
+import FavButton from "@/components/FavButton";
 
 export default function SearchIngredientsScreen() {
     const [inputedIngredient, setInputedIngredient] = useState<string>("");
@@ -54,7 +22,41 @@ export default function SearchIngredientsScreen() {
     const [ingredientSuggestions, setIngredientSuggestions] = useState<string[]>([]);
     const [isSearchFocused, setIsSearchFocused] = useState(false);
     const { ingredientsState, setIngredientsState } = useIngredients();
+    const { favIngredientsState, setFavIngredientsState } = useFavIngredients();
 
+    const searchListItem = (item: string) => {
+        const isInIngredientsList = ingredientsState?.ingredientList.some(
+            (ingredient: any) => ingredient.name.toLowerCase() === item.toLowerCase()
+        ) || false;
+
+        return (
+            <View style={[styles.container, { backgroundColor: '#222' }]}>
+                <FavButton item={item} />
+                <ThemedText style={styles.itemText}>{item}</ThemedText>
+                <TouchableOpacity
+                    onPress={() => {
+                        Keyboard.dismiss();
+                        router.push({
+                            pathname: '/add-ingredient-modal',
+                            params: { ingredientName: item }
+                        });
+                    }}
+                    style={{
+                        flex: 1,
+                        alignItems: 'flex-end',
+                        alignSelf: 'stretch',
+                        justifyContent: 'center',
+                    }}>
+                    <MaterialIcons
+                        name={isInIngredientsList ? "check" : "add"}
+                        size={24}
+                        color={isInIngredientsList ? "#4CAF50" : "gray"}
+                        style={{ paddingRight: 15 }}
+                    />
+                </TouchableOpacity>
+            </View>
+        );
+    }
 
     const getIngredientSuggestions = (text: string) => {
         if (text.length < 3) {
@@ -88,58 +90,58 @@ export default function SearchIngredientsScreen() {
     const dismissKeyboard = () => {
         Keyboard.dismiss();
     };
-    
-    const renderItem = useCallback(({ item }: { item: string }) => searchListItem(item, ingredientsState), [ingredientsState]);
+
+    const renderItem = useCallback(({ item }: { item: string }) => searchListItem(item), [ingredientsState, favIngredientsState],);
 
     return (
         <ThemedView style={{ flex: 1 }}>
-            <KeyboardAvoidingView 
+            <KeyboardAvoidingView
                 behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
                 style={{ flex: 1, marginBottom: Platform.OS === 'ios' ? 0 : 20 }}
                 keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 40}
                 enabled={true}
             >
-                <View style={{ flex: 1}}>
+                <View style={{ flex: 1 }}>
                     <Pressable style={{ height: 100 }} onPress={dismissKeyboard}>
-                        <View style={{ height: 100 }}/>
+                        <View style={{ height: 100 }} />
                     </Pressable>
 
-                    <View style={{ width: '100%', marginBottom: 20, overflow: 'visible', }}> 
-                        <ThemedText 
-                            style={{ 
+                    <View style={{ width: '100%', marginBottom: 20, overflow: 'visible', }}>
+                        <ThemedText
+                            style={{
                                 paddingTop: 20,
-                                paddingLeft: 20, 
-                                fontSize: 40, 
+                                paddingLeft: 20,
+                                fontSize: 40,
                                 fontWeight: 'bold',
                                 overflow: 'visible',
-                                textAlign: 'left' 
-                        }}>
+                                textAlign: 'left'
+                            }}>
                             Search
                         </ThemedText>
                     </View>
-                    {ingredientSuggestions.length === 0 
-                        && inputedIngredient.length < 2 
+                    {ingredientSuggestions.length === 0
+                        && inputedIngredient.length < 2
                         && !isIngredientSuggestionsLoading
                         && !isSearchFocused ? (
-                    
+
                         <View style={styles.loadingContainer}>
-                            <MaterialIcons 
+                            <MaterialIcons
                                 name="search"
-                                size={100} 
-                                color="#666" 
+                                size={100}
+                                color="#666"
                                 style={{ opacity: 0.5, overflow: 'visible' }}
                             />
                             <ThemedText style={{ color: '#666', marginTop: 20, textAlign: 'center' }}>
                                 Start typing to search for ingredients
                             </ThemedText>
                         </View>
-                    ) : null }
+                    ) : null}
 
                     {isIngredientSuggestionsLoading ? (
                         <View style={styles.loadingContainer}>
-                            <ActivityIndicator 
-                                size="large" 
-                                color="#666" 
+                            <ActivityIndicator
+                                size="large"
+                                color="#666"
                             />
                         </View>
                     ) : (
@@ -182,25 +184,25 @@ export default function SearchIngredientsScreen() {
                             onChangeText={(text) => handleSearch(text)}
                             onFocus={() => setIsSearchFocused(true)}
                             onBlur={() => setIsSearchFocused(false)}
-                            onSubmitEditing={() => {}}
+                            onSubmitEditing={() => { }}
                             autoCorrect={true}
                             autoCapitalize="none"
                             returnKeyType="done"
                         />
-                        <TouchableOpacity 
-                            onPress={isSearchFocused && inputedIngredient ? clearInput : () => {}}
+                        <TouchableOpacity
+                            onPress={isSearchFocused && inputedIngredient ? clearInput : () => { }}
                             style={styles.searchButton}
                         >
-                            <MaterialIcons 
-                                name={isSearchFocused && inputedIngredient ? "clear" : "search"} 
-                                size={24} 
-                                color="#666" 
+                            <MaterialIcons
+                                name={isSearchFocused && inputedIngredient ? "clear" : "search"}
+                                size={24}
+                                color="#666"
                             />
                         </TouchableOpacity>
                     </View>
                 </View>
             </KeyboardAvoidingView>
-        </ThemedView>  
+        </ThemedView>
     );
 }
 

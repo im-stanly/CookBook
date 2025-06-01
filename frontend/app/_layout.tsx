@@ -12,6 +12,7 @@ import { useColorScheme } from '@/hooks/useColorScheme';
 import { AuthProvider, useAuth } from '@/contexts/AuthContext';
 import { IngredientsProvider } from '@/contexts/IngredientsContext';
 import { RecipesProvider } from '@/contexts/RecipesContext';
+import { FavIngredientsProvider } from '@/contexts/FavIngredientsContext';
 
 SplashScreen.preventAutoHideAsync();
 SystemUI.setBackgroundColorAsync('#transparent');
@@ -34,9 +35,11 @@ export default function RootLayout() {
   return (
     <AuthProvider>
       <IngredientsProvider>
-        <RecipesProvider>
-          <Layout></Layout>
-        </RecipesProvider>
+        <FavIngredientsProvider>
+          <RecipesProvider>
+            <Layout></Layout>
+          </RecipesProvider>
+        </FavIngredientsProvider>
       </IngredientsProvider>
     </AuthProvider>
   );
@@ -66,7 +69,7 @@ export const Layout = () => {
                 headerShown: false,
               }}
             />,
-            <Stack.Screen 
+            <Stack.Screen
               key='add-ingredient-modal'
               name='add-ingredient-modal'
               options={{
@@ -89,7 +92,7 @@ export const Layout = () => {
               headerShown: false,
               animation: 'fade',
             }} />,
-            <Stack.Screen 
+            <Stack.Screen
               key='recipes'
               name='recipes'
               options={{
@@ -97,7 +100,7 @@ export const Layout = () => {
                 headerShown: false,
               }}
             />,
-            <Stack.Screen 
+            <Stack.Screen
               key='recipe-details'
               name='recipe-details'
               options={{

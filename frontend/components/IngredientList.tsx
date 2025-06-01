@@ -5,6 +5,7 @@ import { useColorScheme } from '@/hooks/useColorScheme';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import { router } from "expo-router";
 import { Ingredient, useIngredients } from "@/contexts/IngredientsContext";
+import FavButton from "./FavButton";
 
 type IngredientListProps = {
     item: string;
@@ -34,6 +35,7 @@ const IngredientListItem = ({
                     params: { ingredientName: item }
                 });
             }}>
+            <FavButton item={item} />
             <ThemedText style={styles.itemText}>{item}</ThemedText>
             <View style={styles.controls}>
                 <ThemedText style={styles.itemText}>{quantity}</ThemedText>
