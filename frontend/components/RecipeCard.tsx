@@ -12,8 +12,9 @@ import { LinearGradient } from 'expo-linear-gradient';
 const { width: screenWidth } = Dimensions.get("window");
 const { height: screenHeight } = Dimensions.get("window");
 
-export default function RecipeCard({ recipe }: { recipe: Recipe }) {
+export default function RecipeCard({ recipePair }: { recipePair: [number, Recipe] }) {
     const colorScheme = useColorScheme();
+    const { 0: ingredientMatch, 1: recipe } = recipePair;
     const { name, description, likesCount, dislikesCount, ingredients } = recipe;
     
     const parseDescription = (text: string) => {
@@ -30,6 +31,8 @@ export default function RecipeCard({ recipe }: { recipe: Recipe }) {
 
     const { ingredientsList, descriptionText } = parseDescription(description);
 
+    const matchColor = Number(ingredientMatch) >= 85 ? 'green' : Number(ingredientMatch) >= 66 ? 'orange' : 'red';
+
     console.log("Parsed ingredients:", ingredientsList);
 
     return (
@@ -44,6 +47,7 @@ export default function RecipeCard({ recipe }: { recipe: Recipe }) {
                         description,
                         likesCount,
                         dislikesCount,
+                        ingredientMatch: ingredientMatch,
                     },
                 })
             }
@@ -81,18 +85,22 @@ export default function RecipeCard({ recipe }: { recipe: Recipe }) {
                 </View> */}
 
                 <View style={{ marginBottom: 20, paddingTop: 10 }}>
-                    <ThemedText numberOfLines={10} style={{ color: '#fff', fontWeight: 'bold'}}>click for more</ThemedText>
+                    <ThemedText numberOfLines={10} style={{ color: '#fff', fontWeight: 'bold' }}>click for more</ThemedText>
                 </View>
             </View>
 
 
 
             {/* likes and other buttons */}
-            <View style={{flexDirection: 'row', alignItems: 'center', justifyContent: 'flex-end', paddingBottom: 10, paddingRight: 10}}>
-                <TouchableOpacity onPress={() => console.log("Like pressed")}>
-                    <MaterialIcons name="favorite-border" size={34} color="gray" />
-                </TouchableOpacity>
-                <ThemedText style={{ fontSize: 18, fontWeight: 'bold', marginLeft: 10, color: '#fff' }}>{likesCount}</ThemedText>
+            <View style={{flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', padding: 10,  marginHorizontal: 10}}>
+                <ThemedText style={{ fontSize: 18, fontWeight: 'bold', color: matchColor, textAlign: "right" }}>{ingredientMatch}%</ThemedText>
+                
+                <View style={{flexDirection: 'row', alignItems: 'center'}}>
+                    <TouchableOpacity onPress={() => console.log("Like pressed")}>
+                        <MaterialIcons name="favorite-border" size={34} color="gray" />
+                    </TouchableOpacity>
+                    <ThemedText style={{ fontSize: 18, fontWeight: 'bold', marginLeft: 10, color: '#fff' }}>{likesCount}</ThemedText>
+                </View>
             </View>
         </TouchableOpacity>
     )

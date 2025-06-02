@@ -47,7 +47,7 @@ export default function RecipesScreen() {
     const { recipes, fetchRecipes, setRecipes } = useRecipes();
     const [ loadedRecipes, setLoadedRecipes ] = useState(0);
     const [ isLoadMoreButtonVisible, setIsLoadMoreButtonVisible ] = useState(true);
-    const [ recipeList, setRecipeList ] = useState<Recipe[]>([]);
+    const [ recipeList, setRecipeList ] = useState<[number, Recipe][]>([]);
 
     const handleLoadMore = () => {
         if (loadedRecipes < recipeList.length) {
@@ -66,10 +66,24 @@ export default function RecipesScreen() {
             await fetchRecipes();
         };
         fetchData();
-
-        setRecipeList(recipes.get(100) || [])
     }, []); 
 
+    useEffect(() => {
+        const recipePairs: [number, Recipe][] = [];
+        recipes.forEach((recipeArray, key) => {
+            recipeArray.forEach(recipe => {
+                recipePairs.push([key, recipe]);
+            });
+        });
+
+        recipePairs.sort((a, b) => {
+            const aMatch = a[0];
+            const bMatch = b[0];
+            return bMatch - aMatch; 
+        });
+
+        setRecipeList(recipePairs);
+    }, [recipes]);
 
     useEffect(() => {
         if (recipeList.length <= 5) {
@@ -79,7 +93,7 @@ export default function RecipesScreen() {
             setLoadedRecipes(5);
             setIsLoadMoreButtonVisible(true);
         }
-    }, [recipes]);
+    }, [recipeList]);
 
     const limitedRecipes = recipeList.slice(0, loadedRecipes);
     
@@ -100,7 +114,7 @@ export default function RecipesScreen() {
                         item.isLoadMoreButton ? 
                             <LoadMoreButton onPress={handleLoadMore} />
                             : 
-                            <RecipeCard recipe={item} />
+                            <RecipeCard recipePair={[item[0], item[1]]} />
                     }
                     style={{
                         alignSelf: 'center',

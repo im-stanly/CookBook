@@ -8,9 +8,10 @@ import { useColorScheme } from "@/hooks/useColorScheme";
 
 export default function RecipeDetailsScreen() {
     const colorScheme = useColorScheme();
-    const { name, ingredientsList, description, likesCount } = useLocalSearchParams();
+    const { name, ingredientsList, description, likesCount, ingredientMatch } = useLocalSearchParams();
 
-    const ingredients = ingredientsList ? JSON.parse(ingredientsList as string) : [];
+    const matchColor = Number(ingredientMatch) >= 85 ? 'green' : Number(ingredientMatch) >= 66 ? 'orange' : 'red';
+
 
     return (
         <ScrollView style={{ flex: 1, padding: 30, paddingTop: 60, backgroundColor: colorScheme === 'light' ? '#fff' : '#000' }}
@@ -20,9 +21,16 @@ export default function RecipeDetailsScreen() {
             {ingredients.map((ingredient: string, idx: number) => (
                 <ThemedText key={idx}>• {ingredient}</ThemedText>
             ))} */}
-            <ThemedText style={{ fontSize: 18, marginTop: 20 }}>{description.split("Description:")[0]}</ThemedText>
-            <ThemedText style={{ fontSize: 18, marginTop: 20, fontWeight: 'bold' }}>Description:</ThemedText>
-            <ThemedText style={{ fontSize: 18, marginTop: 10 }}>{description.split("Description:")[1]}</ThemedText>
+            <View style={{ flexDirection: 'row', alignItems: 'baseline', justifyContent: 'space-between', marginTop: 30 }}>
+                <ThemedText style={{ fontSize: 18, fontWeight: 'bold' }}>Ingredients: </ThemedText>
+                <ThemedText style={{ fontSize: 18, fontWeight: 'bold', color: matchColor }}>{ingredientMatch}%</ThemedText>    
+            </View>
+            <ThemedText style={{ fontSize: 18 }}>{description.split("Description: ")[0].replace("Ingredients: ", "")}</ThemedText>
+            
+            <View style={{ flexDirection: 'row', marginTop: 30 }}>
+                <ThemedText style={{ fontSize: 18, fontWeight: 'bold' }}>Description:</ThemedText>
+            </View>
+            <ThemedText style={{ fontSize: 18, marginTop: 10 }}>{description.split("Description: ")[1]}</ThemedText>
         </ScrollView>
     )
 }
