@@ -39,8 +39,14 @@ public class UserController {
         if (newAccount.isVerified())
             newAccount.setVerified(false);
 
-        if (userService.save(newAccount) != null)
-            return ResponseEntity.ok(createSuccessResponse("Account created successfully."));
+        try{
+            if (userService.save(newAccount) != null)
+                return ResponseEntity.ok(createSuccessResponse("Account created successfully."));
+        } catch (RuntimeException ex) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(createErrorResponse(ex.getMessage()));
+        } catch (Exception ex) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(createErrorResponse(ex.getMessage()));
+        }
 
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(createErrorResponse("Server Error."));
     }
