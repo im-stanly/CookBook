@@ -22,13 +22,13 @@ export type Recipe = {
 }
 
 interface RecipesProps {
-    recipes: Recipe[];
+    recipes: Map<number, Recipe[]>;
     fetchRecipes: () => Promise<void>;
-    setRecipes: (recipes: Recipe[]) => void;
+    setRecipes: (recipes: Map<number, Recipe[]>) => void;
 }
 
 const RecipesContex = createContext<RecipesProps>({
-    recipes: [],
+    recipes: new Map(),
     fetchRecipes: async () => {},
     setRecipes: () => {},
 });
@@ -36,7 +36,7 @@ const RecipesContex = createContext<RecipesProps>({
 export const useRecipes = () => useContext(RecipesContex);
 
 export const RecipesProvider = ({ children } : any) => {
-    const [recipes, setRecipes] = useState<Recipe[]>([]);
+    const [recipes, setRecipes] = useState<Map<number, Recipe[]>>(new Map());
     const { ingredientList } = useIngredients().ingredientsState!;
 
     const fetchRecipes = async () => {
@@ -59,25 +59,29 @@ export const RecipesProvider = ({ children } : any) => {
                 } 
             });
 
-            const fetchedRecipes: Recipe[] = response.data.map((item: any) => ({
-                name: item.name,
-                description: item.description,
-                likesCount: String(item.likesCount),
-                dislikesCount: String(item.dislikesCount),
-                ingredients: item.ingredients.map((ing: any) => ({
-                    name: ing.name,
-                    unitName: ing.unitName,
-                    amountRangeStart: String(ing.amountRangeStart),
-                    amountRangeEnd: String(ing.amountRangeEnd),
-                    preciseIngredientName: ing.preciseIngredientName,
-                    approximateCaloriesPer100Gram: String(ing.approximateCaloriesPer100Gram),
-                })),
-            }));
+            const fetchedRecipes: Map<number, Recipe[]> = new Map<number, Recipe[]>();
+            Object.entries(response.data).forEach(([key, recipes]: [string, any]) => (
+                fetchedRecipes.set(Number(key), recipes.map((recipe: any) => ({
+                    name: recipe.name,
+                    description: recipe.description,
+                    likesCount: String(recipe.likesCount),
+                    dislikesCount: String(recipe.dislikesCount),
+                    ingredients: recipe.ingredients.map((ing: any) => ({
+                        name: ing.name,
+                        unitName: ing.unitName,
+                        amountRangeStart: String(ing.amountRangeStart),
+                        amountRangeEnd: String(ing.amountRangeEnd),
+                        preciseIngredientName: ing.preciseIngredientName,
+                        approximateCaloriesPer100Gram: String(ing.approximateCaloriesPer100Gram),
+                    })),
+            })))));
+            
+            console.log("Fetched recipes map:", fetchedRecipes);
             setRecipes(fetchedRecipes); 
             console.log("Fetched recipes!");
         } catch (e) {
             console.error("Failed to fetch recipes:", e);
-            setRecipes([]);
+            setRecipes(new Map());
         }
     };
 

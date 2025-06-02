@@ -47,13 +47,14 @@ export default function RecipesScreen() {
     const { recipes, fetchRecipes, setRecipes } = useRecipes();
     const [ loadedRecipes, setLoadedRecipes ] = useState(0);
     const [ isLoadMoreButtonVisible, setIsLoadMoreButtonVisible ] = useState(true);
+    const [ recipeList, setRecipeList ] = useState<Recipe[]>([]);
 
     const handleLoadMore = () => {
-        if (loadedRecipes < recipes.length) {
-            setLoadedRecipes(loadedRecipes + 5 > recipes.length ? recipes.length : loadedRecipes + 5);
+        if (loadedRecipes < recipeList.length) {
+            setLoadedRecipes(loadedRecipes + 5 > recipeList.length ? recipeList.length : loadedRecipes + 5);
         }
 
-        if (loadedRecipes >= recipes.length) {
+        if (loadedRecipes >= recipeList.length) {
             setIsLoadMoreButtonVisible(false);
         }
 
@@ -61,16 +62,18 @@ export default function RecipesScreen() {
 
     useEffect(() => {
         const fetchData = async () => {
-            setRecipes([]);
+            setRecipes(new Map());
             await fetchRecipes();
         };
         fetchData();
+
+        setRecipeList(recipes.get(100) || [])
     }, []); 
 
 
     useEffect(() => {
-        if (recipes.length <= 5) {
-            setLoadedRecipes(recipes.length);
+        if (recipeList.length <= 5) {
+            setLoadedRecipes(recipeList.length);
             setIsLoadMoreButtonVisible(false);
         } else {
             setLoadedRecipes(5);
@@ -78,9 +81,9 @@ export default function RecipesScreen() {
         }
     }, [recipes]);
 
-    const limitedRecipes = recipes.slice(0, loadedRecipes);
+    const limitedRecipes = recipeList.slice(0, loadedRecipes);
     
-    const carouselItems = isLoadMoreButtonVisible && loadedRecipes < recipes.length
+    const carouselItems = isLoadMoreButtonVisible && loadedRecipes < recipeList.length
         ? [...limitedRecipes, { id: 'load-more', isLoadMoreButton: true }]
         : limitedRecipes;
 
