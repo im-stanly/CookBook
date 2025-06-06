@@ -7,6 +7,7 @@ public class UserModelMapper {
     static UserModel onto(UserModelDTO userDTO) {
         if (userDTO == null) return null;
         return UserModel.builder()
+                .id(userDTO.getId())
                 .email(userDTO.getEmail())
                 .username(userDTO.getUsername())
                 .verified(userDTO.isVerified())
@@ -17,6 +18,7 @@ public class UserModelMapper {
     static UserModelDTO from(UserModel userModel) {
         if (userModel == null) return null;
         return UserModelDTO.builder()
+                .id(userModel.getId())
                 .email(userModel.getEmail())
                 .isVerified(userModel.isVerified())
                 .username(userModel.getUsername())

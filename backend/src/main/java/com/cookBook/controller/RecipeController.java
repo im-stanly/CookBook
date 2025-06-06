@@ -1,20 +1,19 @@
 package com.cookBook.controller;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestHeader;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
-
-import com.cookBook.config.UserTokenUtils;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
 import com.cookBook.dto.RecipeModelDTO;
 import com.cookBook.dto.UserInputIngredientDTO;
+import com.cookBook.entity.ReactionModel;
+import com.cookBook.entity.RecipeModel;
+import com.cookBook.entity.UserModel;
+import com.cookBook.repository.ReactionRepository;
+import com.cookBook.repository.RecipeRepository;
+import com.cookBook.repository.UserRepository;
 import com.cookBook.service.IngredientService;
 import com.cookBook.service.RecipeService;
 
@@ -26,6 +25,13 @@ public class RecipeController {
 
     @Autowired
     public RecipeService recipeService;
+
+    @Autowired
+    private ReactionRepository reactionRepository;
+    @Autowired
+    private RecipeRepository recipeRepository;
+    @Autowired
+    private UserRepository userRepository;
 
     @GetMapping("/all")
     public List<RecipeModelDTO> getAllRecipes() {
@@ -41,10 +47,60 @@ public class RecipeController {
         return recipeService.getRecipesByIngredients(ingredients);
     }
 
+    @PostMapping("/byText")
+    public Map<Integer, List<RecipeModelDTO>> getRecipeByPlainText(@RequestHeader(value = "user-token") String userToken, @RequestBody String ingredients){
+        // TODO: Limit the number of queries
+//        if(!UserTokenUtils.isTokenValid(userToken))
+//            return null;
+//        if(!UserTokenUtils.isVerified(userToken))
+
+        System.out.println("Received ingredients: " + ingredients);
+
+        List <UserInputIngredientDTO> ingredientList = new ArrayList<>();
+        ingredientList.add(new UserInputIngredientDTO("Milk", "Cup", 10));
+        ingredientList.add(new UserInputIngredientDTO("Egg", "Piece", 20));
+        ingredientList.add(new UserInputIngredientDTO("Flour", "Cup", 10));
+        ingredientList.add(new UserInputIngredientDTO("Cream", "Cup", 10));
+        ingredientList.add(new UserInputIngredientDTO("Banana", "Piece", 10));
+
+        return recipeService.getRecipesByIngredients(ingredientList);
+    }
+
     @GetMapping("/ingredients/{ingName}")
     public Map<String, List<String>> getPossibleIngredients(@PathVariable("ingName") String ingredientName) {
         if(ingredientName == null || ingredientName.length() < 3)
             return Map.of();
         return ingredientService.getAllIngredientsWithConversions(ingredientName);
+    }
+
+    @PostMapping("/{recipeId}/react")
+    public ResponseEntity<String> addReaction(
+            @PathVariable long recipeId,
+            @RequestParam boolean isLike,
+            @RequestParam long userId
+    ) {
+        RecipeModel recipe = recipeRepository.findById(recipeId).orElse(null);
+        if (recipe == null) {
+            return ResponseEntity.badRequest().body("Recipe not found.");
+        }
+
+        UserModel user = userRepository.findById(userId);
+        if (user == null) {
+            return ResponseEntity.badRequest().body("User not found.");
+        }
+
+        ReactionModel reaction = reactionRepository
+            .findAll()
+            .stream()
+            .filter(r -> r.getUser().getId() == userId && r.getRecipe().getId() == recipeId)
+            .findFirst()
+            .orElse(new ReactionModel());
+
+        reaction.setUser(user);
+        reaction.setRecipe(recipe);
+        reaction.setLike(isLike);
+
+        reactionRepository.save(reaction);
+        return ResponseEntity.ok("Reaction recorded successfully.");
     }
 }
