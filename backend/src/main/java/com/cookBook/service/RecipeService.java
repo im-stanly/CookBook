@@ -81,6 +81,7 @@ public class RecipeService {
                 .collect(Collectors.toList());
 
         return RecipeModelDTO.builder()
+                .id(recipe.getId())
                 .name(recipe.getName())
                 .description(recipe.getDescription())
                 .likesCount(likes)

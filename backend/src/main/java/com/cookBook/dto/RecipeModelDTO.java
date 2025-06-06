@@ -7,6 +7,7 @@ import lombok.Data;
 @Data
 @Builder
 public class RecipeModelDTO {
+    private long id;
     private String name;
     private String description;
     private int likesCount;

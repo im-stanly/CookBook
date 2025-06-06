@@ -9,6 +9,7 @@ build/
 !**/src/main/java/com/cookBook/config/SecurityConfiguration.java
 target/
 application.properties
+!**/src/main/java/com/cookBook/config/MailConfig.java
 
 ### STS ###
 .apt_generated
