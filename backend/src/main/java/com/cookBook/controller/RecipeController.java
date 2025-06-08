@@ -1,15 +1,6 @@
 package com.cookBook.controller;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.web.bind.annotation.*;
+import com.cookBook.config.UserTokenUtils;
 import com.cookBook.dto.RecipeModelDTO;
 import com.cookBook.dto.UserInputIngredientDTO;
 import com.cookBook.entity.ReactionModel;
@@ -20,6 +11,15 @@ import com.cookBook.repository.RecipeRepository;
 import com.cookBook.repository.UserRepository;
 import com.cookBook.service.IngredientService;
 import com.cookBook.service.RecipeService;
+import com.cookBook.service.UserService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/recipe")
@@ -29,6 +29,8 @@ public class RecipeController {
 
     @Autowired
     public RecipeService recipeService;
+    @Autowired
+    public UserService userService;
 
     @Autowired
     private ReactionRepository reactionRepository;
@@ -48,8 +50,7 @@ public class RecipeController {
 //        if(!UserTokenUtils.isTokenValid(userToken))
 //            return null;
 //        if(!UserTokenUtils.isVerified(userToken))
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        String username = authentication.getName();
+        String username = UserTokenUtils.getUsername(userToken);
         return recipeService.getRecipesByIngredients(ingredients,username);
     }
 
@@ -68,8 +69,7 @@ public class RecipeController {
         ingredientList.add(new UserInputIngredientDTO("Flour", "Cup", 10));
         ingredientList.add(new UserInputIngredientDTO("Cream", "Cup", 10));
         ingredientList.add(new UserInputIngredientDTO("Banana", "Piece", 10));
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        String username = authentication.getName();
+        String username = UserTokenUtils.getUsername(userToken);
         return recipeService.getRecipesByIngredients(ingredientList,username);
     }
 
