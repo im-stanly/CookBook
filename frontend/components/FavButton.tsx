@@ -14,7 +14,8 @@ export default function FavButton({
         (ingredient: any) => ingredient.name.toLowerCase() === item.toLowerCase()
     ) || false
 
-    return (<TouchableOpacity
+    return (
+    <TouchableOpacity
         onPress={() => {
             if (isInFavIngredientsList) {
                 const newFavIngredients = favIngredientsState!.favIngredientList.filter(

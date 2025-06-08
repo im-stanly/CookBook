@@ -39,29 +39,33 @@ export default function FavIngredients() {
     }
 
     return (
-        <View>
-            <ThemedText
-                style={{
-                    fontSize: 40,
-                    fontWeight: 'bold',
-                    textAlign: 'left',
-                    paddingTop: 40,
-                    overflow: 'visible',
-                    lineHeight: 48,
-                    paddingLeft: 20,
-                    width: '80%',
-                }}
-            >
-                Favorite Ingredients
-            </ThemedText>
-            <FlatList
-                data={favIngredientsState!.favIngredientList.map((ingredient: FavIngredient) => ingredient.name)}
-                keyExtractor={(item) => item}
-                renderItem={renderItem}
-                inverted={true}
-                showsVerticalScrollIndicator={false}
-            />
-        </View>
+        <ThemedView style={{ flex: 1 }}>
+            <View style={{ flex: 1, marginTop: 100}}>
+                <View style={{ width: '100%', marginBottom: 20, overflow: 'visible', }}>
+                    <ThemedText
+                        style={{
+                            paddingTop: 20,
+                            paddingLeft: 20,
+                            fontSize: 40,
+                            fontWeight: 'bold',
+                            overflow: 'visible',
+                            textAlign: 'left'
+                        }}>
+                        Favourite
+                    </ThemedText>
+                </View>
+
+                <FlatList
+                    data={favIngredientsState!.favIngredientList.map((ingredient: FavIngredient) => ingredient.name)}
+                    keyExtractor={(item) => item}
+                    style={{ width: '100%', flex: 1 }}
+                    contentContainerStyle={{ paddingHorizontal: 20 }}
+                    renderItem={renderItem}
+                    inverted={false}
+                    showsVerticalScrollIndicator={false}
+                />
+            </View>
+        </ThemedView>
     );
 }
 
