@@ -10,6 +10,7 @@ import com.cookBook.repository.ReactionRepository;
 import com.cookBook.repository.RecipeRepository;
 import com.cookBook.repository.UserRepository;
 import com.cookBook.service.IngredientService;
+import com.cookBook.service.ReactionService;
 import com.cookBook.service.RecipeService;
 import com.cookBook.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,6 +32,8 @@ public class RecipeController {
     public RecipeService recipeService;
     @Autowired
     public UserService userService;
+    @Autowired
+    public ReactionService reactionService;
 
     @Autowired
     private ReactionRepository reactionRepository;
@@ -115,7 +118,7 @@ public class RecipeController {
             @PathVariable long recipeId,
             @RequestParam String username
     ) {
-        reactionRepository.deleteByUserUsernameAndRecipeId(username, recipeId);
+        reactionService.deleteReactionByUsernameAndRecipeId(username,recipeId);
         return ResponseEntity.ok("Reaction deleted successfully");
     }
 }
