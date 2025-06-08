@@ -1,5 +1,5 @@
 import { MaterialIcons } from "@expo/vector-icons";
-import { useEffect, useState } from "react";
+import { use, useEffect, useState } from "react";
 import { TouchableOpacity, View } from "react-native";
 import { ThemedText } from "./ThemedText";
 import axios from "axios";
@@ -16,8 +16,11 @@ export default function LikeButton({
 
     const { authState } = useAuth();
     const { fetchRecipes } = useRecipes()
+    const [likesCount, setLikesCount] = useState<string>(recipe.likesCount);
+    const [dislikesCount, setDislikesCount] = useState<string>(recipe.dislikesCount);
 
     const [username, setUsername] = useState<string | null>(null);
+    const [reaction, setReaction] = useState<"like" | "dislike" | null>(recipe.myReaction);
 
     useEffect(() => {
         if (authState && authState.username) {
@@ -33,53 +36,68 @@ export default function LikeButton({
                         console.warn("User is not authenticated");
                         return;
                     }
-                    if (recipe.myReaction === "like") {
-                        axios.delete(`${API_URL}/recipe/${recipe.id}/react`, { params: { username: username } }).then((r) => {
-                            fetchRecipes();
-                        })
-                    } else {
+                    if (reaction === "like") {
+                        setReaction(null);
+                        setLikesCount(String(Number(likesCount) - 1));
+
+                        axios.delete(`${API_URL}/recipe/${recipe.id}/react`, { params: { username: username } })
+                    } else if (reaction === null) {
+                        setReaction("like");
+                        setLikesCount(String(Number(likesCount) + 1));
+
                         axios.post(`${API_URL}/recipe/${recipe.id}/react`, {}, { params: { isLike: true, username: username } })
-                            .then((r) => {
-                                fetchRecipes();
-                            })
+                    } else if (reaction === "dislike") {
+                        setReaction("like");
+                        setLikesCount(String(Number(likesCount) + 1));
+                        setDislikesCount(String(Number(dislikesCount) - 1));
+
+                        axios.delete(`${API_URL}/recipe/${recipe.id}/react`, { params: { username: username } })
+                        axios.post(`${API_URL}/recipe/${recipe.id}/react`, {}, { params: { isLike: true, username: username } })
                     }
                 }}
             >
                 <MaterialIcons
                     name="arrow-upward"
                     size={34}
-                    color={recipe.myReaction === "like" ? "red" : "gray"}
+                    color={reaction === "like" ? "red" : "gray"}
                     style={{ paddingRight: 5 }}
                 />
             </TouchableOpacity>
-            <ThemedText style={{ fontSize: 18, fontWeight: 'bold', marginLeft: 10, color: '#fff', paddingRight: 15 }}>{recipe.likesCount}</ThemedText>
+            <ThemedText style={{ fontSize: 18, fontWeight: 'bold', marginLeft: 10, color: '#fff', paddingRight: 15 }}>{likesCount}</ThemedText>
             <TouchableOpacity
                 onPress={() => {
                     if (!username) {
                         console.warn("User is not authenticated");
                         return;
                     }
-                    if (recipe.myReaction === "dislike") {
+                    if (reaction === "dislike") {
+                        setReaction(null);
+                        setDislikesCount(String(Number(dislikesCount) - 1));
+
                         axios.delete(`${API_URL}/recipe/${recipe.id}/react`, { params: { username: username } })
-                            .then((r) => {
-                                fetchRecipes();
-                            })
-                    } else {
+                    } else if (reaction === null) {
+                        setReaction("dislike");
+                        setDislikesCount(String(Number(dislikesCount) + 1));
+
                         axios.post(`${API_URL}/recipe/${recipe.id}/react`, {}, { params: { isLike: false, username: username } })
-                            .then((r) => {
-                                fetchRecipes();
-                            })
+                    } else if (reaction === "like") {
+                        setReaction("dislike");
+                        setLikesCount(String(Number(likesCount) - 1));
+                        setDislikesCount(String(Number(dislikesCount) + 1));
+
+                        axios.delete(`${API_URL}/recipe/${recipe.id}/react`, { params: { username: username } })
+                        axios.post(`${API_URL}/recipe/${recipe.id}/react`, {}, { params: { isLike: false, username: username } })
                     }
                 }}
             >
                 <MaterialIcons
                     name="arrow-downward"
                     size={34}
-                    color={recipe.myReaction === "dislike" ? "blue" : "gray"}
+                    color={reaction === "dislike" ? "blue" : "gray"}
                     style={{ paddingRight: 5 }}
                 />
             </TouchableOpacity>
-            <ThemedText style={{ fontSize: 18, fontWeight: 'bold', marginLeft: 10, color: '#fff' }}>{recipe.dislikesCount}</ThemedText>
+            <ThemedText style={{ fontSize: 18, fontWeight: 'bold', marginLeft: 10, color: '#fff' }}>{dislikesCount}</ThemedText>
         </View>
     );
 
