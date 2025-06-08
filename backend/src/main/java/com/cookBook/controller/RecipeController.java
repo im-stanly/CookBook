@@ -110,7 +110,7 @@ public class RecipeController {
         reactionRepository.save(reaction);
         return ResponseEntity.ok("Reaction recorded successfully.");
     }
-    @DeleteMapping
+    @DeleteMapping("/{recipeId}/react")
     private ResponseEntity<String> deleteReaction(
             @PathVariable long recipeId,
             @RequestParam String username
