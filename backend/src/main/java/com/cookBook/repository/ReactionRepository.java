@@ -6,5 +6,5 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface ReactionRepository extends JpaRepository<ReactionModel,Long> {
-
+    void deleteByUserUsernameAndRecipeId(String username, Long recipeId);
 }

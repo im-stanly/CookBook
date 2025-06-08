@@ -2,17 +2,16 @@ package com.cookBook.service;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
+
+import com.cookBook.entity.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import com.cookBook.dto.IngredientModelDTO;
 import com.cookBook.dto.RecipeModelDTO;
 import com.cookBook.dto.UserInputIngredientDTO;
-import com.cookBook.entity.IngredientInRecipeModel;
-import com.cookBook.entity.IngredientModel;
-import com.cookBook.entity.ReactionModel;
-import com.cookBook.entity.RecipeModel;
 import com.cookBook.repository.RecipeRepository;
 
 @Service
@@ -20,15 +19,15 @@ public class RecipeService {
     @Autowired
     private RecipeRepository recipeRepository;
 
-    @Transactional(readOnly = true)
-    public List<RecipeModelDTO> getAllRecipes() {
-        return recipeRepository.findAll().stream()
-                .map(this::mapToRecipeModelDTO)
-                .collect(Collectors.toList());
-    }
+//    @Transactional(readOnly = true)
+//    public List<RecipeModelDTO> getAllRecipes() {
+//        return recipeRepository.findAll().stream()
+//                .map(this::mapToRecipeModelDTO)
+//                .collect(Collectors.toList());
+//    }
 
     @Transactional(readOnly = true)
-    public Map<Integer, List<RecipeModelDTO>> getRecipesByIngredients(List<UserInputIngredientDTO> userIngredients) {
+    public Map<Integer, List<RecipeModelDTO>> getRecipesByIngredients(List<UserInputIngredientDTO> userIngredients,String username) {
         List<String> allowedIngredientNames = userIngredients.stream()
                 .map(UserInputIngredientDTO::getName)
                 .distinct()
@@ -56,14 +55,14 @@ public class RecipeService {
             int percentage = (int) (100.0 * matched / total);
             if (percentage >= 50) {
                 resultMap.computeIfAbsent(percentage, k -> new java.util.ArrayList<>())
-                         .add(mapToRecipeModelDTO(recipe));
+                         .add(mapToRecipeModelDTO(recipe,username));
             }
         }
 
         return resultMap;
     }
 
-    private RecipeModelDTO mapToRecipeModelDTO(RecipeModel recipe) {
+    private RecipeModelDTO mapToRecipeModelDTO(RecipeModel recipe, String username) {
         int likes = 0;
         int dislikes = 0;
 
@@ -80,14 +79,29 @@ public class RecipeService {
                 .map(this::mapToIngredientModelDTO)
                 .collect(Collectors.toList());
 
-        return RecipeModelDTO.builder()
+        var resultBuilder = RecipeModelDTO.builder()
                 .id(recipe.getId())
                 .name(recipe.getName())
                 .description(recipe.getDescription())
                 .likesCount(likes)
                 .dislikesCount(dislikes)
-                .ingredients(ingredientDTOs)
-                .build();
+                .ingredients(ingredientDTOs);
+        var reactions = recipe.getReactions();
+        Optional<ReactionModel> reactionOpt = reactions.stream()
+                .filter(reaction -> reaction.getUser().getUsername().equals(username))
+                .findFirst();
+        if (reactionOpt.isEmpty()) {
+            resultBuilder.doesUserLikeOrDislikeTheRecipe(0);
+            return resultBuilder.build();
+        }
+        var userReaction = reactionOpt.get();
+        if(userReaction.isLike()) {
+            resultBuilder.doesUserLikeOrDislikeTheRecipe(1);
+        } else {
+            resultBuilder.doesUserLikeOrDislikeTheRecipe(-1);
+        }
+        return resultBuilder.build();
+
     }
 
     private IngredientModelDTO mapToIngredientModelDTO(IngredientInRecipeModel ingredientInRecipe) {
@@ -101,4 +115,6 @@ public class RecipeService {
                 .approximateCaloriesPer100Gram(ingredient.getApproximateCaloriesPer100Gram())
                 .build();
     }
+
+
 }

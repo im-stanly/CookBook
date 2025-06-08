@@ -13,4 +13,5 @@ public class RecipeModelDTO {
     private int likesCount;
     private int dislikesCount;
     private List<IngredientModelDTO> ingredients;
+    private int doesUserLikeOrDislikeTheRecipe;
 }

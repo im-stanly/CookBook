@@ -2,6 +2,7 @@ package com.cookBook.service;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -85,11 +86,11 @@ public class UserService {
     }
 
     public UserModelDTO findByUsername(String username) {
-        List<UserModel> response = userRepository.findByUsername(username);
+        Optional<UserModel> response = userRepository.findByUsername(username);
         if (response.isEmpty()) {
             throw new RuntimeException("User with username: '" + username + "' doesn't exist");
         }
-        return UserModelMapper.from(response.getFirst());
+        return UserModelMapper.from(response.get());
     }
 
     public UserModelDTO findByUsernameAndPassword(String username, String password) {

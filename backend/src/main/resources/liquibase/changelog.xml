@@ -15,6 +15,9 @@
             <column name="PASSWORD" type="varchar(255)">
                 <constraints nullable="false"/>
             </column>
+            <column name="VERIFIED" type="boolean">
+                <constraints nullable="false"/>
+            </column>
             <column name="EMAIL" type="varchar(255)"/>
         </createTable>
         <createTable tableName="RECIPES">
