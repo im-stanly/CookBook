@@ -8,6 +8,7 @@ import { ThemedView } from "./ThemedView";
 import { Recipe } from "@/contexts/RecipesContext";
 import { Dimensions } from "react-native";
 import { LinearGradient } from 'expo-linear-gradient';
+import LikeButton from "./LikeButton";
 
 const { width: screenWidth } = Dimensions.get("window");
 const { height: screenHeight } = Dimensions.get("window");
@@ -16,16 +17,16 @@ export default function RecipeCard({ recipePair }: { recipePair: [number, Recipe
     const colorScheme = useColorScheme();
     const { 0: ingredientMatch, 1: recipe } = recipePair;
     const { name, description, likesCount, dislikesCount, ingredients } = recipe;
-    
+
     const parseDescription = (text: string) => {
         const ingredientsMatch = text.match(/Ingredients: \[(.*?)\]/);
-        const ingredientsList = ingredientsMatch 
+        const ingredientsList = ingredientsMatch
             ? ingredientsMatch[1].split(',').map(ingredient => ingredient.trim().replace(/^'(.*)'$/, "$1").replace(/^"(.*)"$/, "$1"))
             : [];
-        
+
         const descriptionMatch = text.match(/Description: ([\s\S]*)/);
         const descriptionText = descriptionMatch ? descriptionMatch[1] : text;
-        
+
         return { ingredientsList, descriptionText };
     };
 
@@ -38,7 +39,7 @@ export default function RecipeCard({ recipePair }: { recipePair: [number, Recipe
     return (
         <TouchableOpacity
             activeOpacity={1}
-            onPress={() => 
+            onPress={() =>
                 router.push({
                     pathname: "/recipe-details",
                     params: {
@@ -48,6 +49,8 @@ export default function RecipeCard({ recipePair }: { recipePair: [number, Recipe
                         likesCount,
                         dislikesCount,
                         ingredientMatch: ingredientMatch,
+                        id: recipe.id.toString(),
+                        myReaction: recipe.myReaction
                     },
                 })
             }
@@ -60,20 +63,20 @@ export default function RecipeCard({ recipePair }: { recipePair: [number, Recipe
                 }
             ]}
         >
-            <View style={{ 
-                flex: 1, 
+            <View style={{
+                flex: 1,
                 padding: 10,
-                marginHorizontal: 10, 
+                marginHorizontal: 10,
                 justifyContent: "center",
             }}>
                 {/* Title */}
                 <View style={{ marginBottom: 20, paddingTop: 10 }}>
-                    <ThemedText style={{ fontSize: 24, fontWeight: 'bold', color: '#fff'}}>{name}</ThemedText>
+                    <ThemedText style={{ fontSize: 24, fontWeight: 'bold', color: '#fff' }}>{name}</ThemedText>
                 </View>
 
                 {/* Description */}
                 <View>
-                    <ThemedText numberOfLines={10} style={{ color: '#fff'}}>{descriptionText.replace(/\n/g, ' ')}</ThemedText>
+                    <ThemedText numberOfLines={10} style={{ color: '#fff' }}>{descriptionText.replace(/\n/g, ' ')}</ThemedText>
                 </View>
 
                 {/* Ingredients */}
@@ -92,15 +95,16 @@ export default function RecipeCard({ recipePair }: { recipePair: [number, Recipe
 
 
             {/* likes and other buttons */}
-            <View style={{flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', padding: 10,  marginHorizontal: 10}}>
+            <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', padding: 10, marginHorizontal: 10 }}>
                 <ThemedText style={{ fontSize: 18, fontWeight: 'bold', color: matchColor, textAlign: "right" }}>{ingredientMatch}%</ThemedText>
-                
-                <View style={{flexDirection: 'row', alignItems: 'center'}}>
+
+                {/* <View style={{flexDirection: 'row', alignItems: 'center'}}>
                     <TouchableOpacity onPress={() => console.log("Like pressed")}>
                         <MaterialIcons name="favorite-border" size={34} color="gray" />
                     </TouchableOpacity>
                     <ThemedText style={{ fontSize: 18, fontWeight: 'bold', marginLeft: 10, color: '#fff' }}>{likesCount}</ThemedText>
-                </View>
+                </View> */}
+                <LikeButton recipe={recipe} />
             </View>
         </TouchableOpacity>
     )
