@@ -5,6 +5,7 @@ import { ThemedText } from "./ThemedText";
 import axios from "axios";
 import { API_URL } from "@/constants/URLs";
 import { Recipe, useRecipes } from "@/contexts/RecipesContext";
+import { useAuth } from "@/contexts/AuthContext";
 
 
 export default function LikeButton({
@@ -13,14 +14,25 @@ export default function LikeButton({
     recipe: Recipe
 }) {
 
+    const { authState } = useAuth();
     const { fetchRecipes } = useRecipes()
-    //TODO: Consider users other than Andrzej
-    const username = "Andrzej";
+
+    const [username, setUsername] = useState<string | null>(null);
+
+    useEffect(() => {
+        if (authState && authState.username) {
+            setUsername(authState.username);
+        }
+    }, [authState]);
 
     return (
         <View style={{ flexDirection: 'row', alignItems: 'center' }}>
             <TouchableOpacity
                 onPress={() => {
+                    if (!username) {
+                        console.warn("User is not authenticated");
+                        return;
+                    }
                     if (recipe.myReaction === "like") {
                         axios.delete(`${API_URL}/recipe/${recipe.id}/react`, { params: { username: username } }).then((r) => {
                             fetchRecipes();
@@ -43,6 +55,10 @@ export default function LikeButton({
             <ThemedText style={{ fontSize: 18, fontWeight: 'bold', marginLeft: 10, color: '#fff', paddingRight: 15 }}>{recipe.likesCount}</ThemedText>
             <TouchableOpacity
                 onPress={() => {
+                    if (!username) {
+                        console.warn("User is not authenticated");
+                        return;
+                    }
                     if (recipe.myReaction === "dislike") {
                         axios.delete(`${API_URL}/recipe/${recipe.id}/react`, { params: { username: username } })
                             .then((r) => {
