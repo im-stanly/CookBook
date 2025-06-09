@@ -77,6 +77,21 @@ export default function RecipesScreen() {
         });
 
         recipePairs.sort((a, b) => {
+            const aRecipe = a[1];
+            const bRecipe = b[1];
+            const likesA = aRecipe.likesCount ? Number(aRecipe.likesCount) : 0;
+            const likesB = bRecipe.likesCount ? Number(bRecipe.likesCount) : 0;
+            
+            const dislikesA = aRecipe.dislikesCount ? Number(aRecipe.dislikesCount) : 0;
+            const dislikesB = bRecipe.dislikesCount ? Number(bRecipe.dislikesCount) : 0;
+
+            const ratingA = likesA - dislikesA;
+            const ratingB = likesB - dislikesB;
+
+            return ratingB - ratingA;
+        });
+
+        recipePairs.sort((a, b) => {
             const aMatch = a[0];
             const bMatch = b[0];
             return bMatch - aMatch; 
