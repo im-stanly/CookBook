@@ -1,5 +1,7 @@
 package com.cookBook.service;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -19,12 +21,8 @@ public class RecipeService {
     @Autowired
     private RecipeRepository recipeRepository;
 
-//    @Transactional(readOnly = true)
-//    public List<RecipeModelDTO> getAllRecipes() {
-//        return recipeRepository.findAll().stream()
-//                .map(this::mapToRecipeModelDTO)
-//                .collect(Collectors.toList());
-//    }
+    @Autowired
+    private IngredientService ingredientService;
 
     @Transactional(readOnly = true)
     public Map<Integer, List<RecipeModelDTO>> getRecipesByIngredients(List<UserInputIngredientDTO> userIngredients,String username) {
@@ -60,6 +58,43 @@ public class RecipeService {
         }
 
         return resultMap;
+    }
+
+    public List<Map<String, String>> plainTextToIngredients(String plainText) {
+        List<Map<String, String>> result = new ArrayList<>();
+        if (plainText == null || plainText.isBlank()) {
+            return result;
+        }
+
+        for (String raw : plainText.split(",")) {
+            String input = raw.trim();
+            if (input.isEmpty()) continue;
+
+            String[] tokens = input.split("\\s+");
+            String unitToken = "";
+            String nameToken = input;
+            if (tokens.length > 1) {
+                unitToken = tokens[tokens.length - 1];
+                nameToken = String.join(" ", java.util.Arrays.copyOfRange(tokens, 0, tokens.length - 1));
+            }
+
+            Map<String, List<String>> dbMatches = ingredientService.getAllIngredientsWithConversions(nameToken);
+            for (var entry : dbMatches.entrySet()) {
+                String dbName = entry.getKey();
+                for (String dbUnit : entry.getValue()) {
+
+                    if (unitToken.isEmpty() || dbUnit.equalsIgnoreCase(unitToken)) {
+                        Map<String, String> map = new HashMap<>();
+                        map.put("input", input);
+                        map.put("name", dbName);
+                        map.put("unit", dbUnit);
+                        result.add(map);
+                    }
+                }
+            }
+        }
+
+        return result;
     }
 
     private RecipeModelDTO mapToRecipeModelDTO(RecipeModel recipe, String username) {
@@ -115,6 +150,4 @@ public class RecipeService {
                 .approximateCaloriesPer100Gram(ingredient.getApproximateCaloriesPer100Gram())
                 .build();
     }
-
-
 }
