@@ -72,10 +72,17 @@ export default function AddActionModal() {
                     </TouchableOpacity>
                 </Animated.View>
                 <Animated.View style={[styles.button, getTransformStyle(1)]}>
+                    <TouchableOpacity onPress={() => { 
+                                        router.replace('/input-plaintext'); 
+                                    }} style={styles.miniButton}>
+                        <MaterialIcons name="text-snippet" size={24} color="#333" />
+                    </TouchableOpacity>
+                </Animated.View>
+                {/* <Animated.View style={[styles.button, getTransformStyle(1)]}>
                     <TouchableOpacity onPress={() => console.log("Camera pressed")} style={styles.miniButton}>
                         <MaterialIcons name="photo-camera" size={24} color="#333" />
                     </TouchableOpacity>
-                </Animated.View>
+                </Animated.View> */}
                 <Animated.View style={[styles.button, getTransformStyle(0)]}>
                     <TouchableOpacity onPress={() => console.log("Microphone pressed")} style={styles.miniButton}>
                         <MaterialIcons name="mic" size={24} color="#333" />

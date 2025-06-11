@@ -13,6 +13,7 @@ import { AuthProvider, useAuth } from '@/contexts/AuthContext';
 import { IngredientsProvider } from '@/contexts/IngredientsContext';
 import { RecipesProvider } from '@/contexts/RecipesContext';
 import { FavIngredientsProvider } from '@/contexts/FavIngredientsContext';
+import { FoundIngredientsProvider } from '@/contexts/FoundIngredientsContext';
 
 SplashScreen.preventAutoHideAsync();
 SystemUI.setBackgroundColorAsync('#transparent');
@@ -37,7 +38,9 @@ export default function RootLayout() {
       <IngredientsProvider>
         <FavIngredientsProvider>
           <RecipesProvider>
-            <Layout></Layout>
+            <FoundIngredientsProvider>
+              <Layout></Layout>
+            </FoundIngredientsProvider>
           </RecipesProvider>
         </FavIngredientsProvider>
       </IngredientsProvider>
@@ -72,6 +75,15 @@ export const Layout = () => {
             <Stack.Screen
               key="fav-ingredients"
               name="fav-ingredients"
+              options={{
+                presentation: 'card',
+                animation: 'slide_from_right',
+                headerShown: false,
+              }}
+            />,
+            <Stack.Screen
+              key="found-ingredients"
+              name="found-ingredients"
               options={{
                 presentation: 'card',
                 animation: 'slide_from_right',

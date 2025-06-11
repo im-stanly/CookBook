@@ -17,8 +17,8 @@ import { API_URL } from '@/constants/URLs';
     ingredient should be added to the list and then the modal should close */}
 export default function AddIngredientModal() {
     const colorScheme = useColorScheme();
-    const params = useLocalSearchParams<{ ingredientName: string }>();
-    
+    const params = useLocalSearchParams<{ ingredientName: string, unit: string }>();
+
     const scaleAnimation = useRef(new Animated.Value(0.8)).current;
     const fadeAnimation = useRef(new Animated.Value(0)).current;
 
@@ -49,8 +49,12 @@ export default function AddIngredientModal() {
     }, [params.ingredientName]);
 
     useEffect(() => {
-        if (unitsList.length > 0) {
-            setSelectedUnit(unitsList[0]);
+        if (params.unit && unitsList.includes(params.unit)) {
+            setSelectedUnit(params.unit);
+        } else {
+            if (unitsList.length > 0) {
+                setSelectedUnit(unitsList[0]);
+            }
         }
 
         const alreadyAddedIgredient = ingredientsState?.ingredientList.find((ingredient) => ingredient.name === selectedIngredient);
@@ -60,7 +64,7 @@ export default function AddIngredientModal() {
             setIngredientAmount(alreadyAddedIgredient.quantity);
             setIngredientAmountInput(alreadyAddedIgredient.quantity.toString());
         }
-    }, [unitsList]);
+    }, [params.unit, unitsList]);
 
     const handleClose = () => {
         if (Keyboard.isVisible()) {
@@ -92,7 +96,7 @@ export default function AddIngredientModal() {
                 let units = [];
                 if (Object.keys(response.data).find((i) => i === item) !== undefined) {
                     units = Object.entries(response.data).filter((i) => i[0] === item).map((i) => i[1])[0] as string[];
-                    
+
                     if (!units || units.length === 0) {
                         units = ['piece'];
                     }
@@ -179,7 +183,7 @@ export default function AddIngredientModal() {
                     </Animated.View>
                 </Pressable>
 
-                <Animated.View 
+                <Animated.View
                     style={[
                         styles.modalContent,
                         {
@@ -199,7 +203,7 @@ export default function AddIngredientModal() {
                     <View style={styles.content}>
                         {unitsList.length > 0 ? (
                             <>
-                                <TextInput 
+                                <TextInput
                                     style={[styles.input, { color: colorScheme === 'light' ? '#000' : '#fff' }]}
                                     onChangeText={onIngredientAmountInput}
                                     onBlur={onIngredientAmountBlur}
@@ -220,9 +224,9 @@ export default function AddIngredientModal() {
                                 </Picker>
                             </>
                         ) : (
-                            <ActivityIndicator 
-                                size="large" 
-                                color="#666" 
+                            <ActivityIndicator
+                                size="large"
+                                color="#666"
                             />
                         )}
                     </View>
@@ -292,7 +296,7 @@ const styles = StyleSheet.create({
         // margin: 12,
         // padding: 10,
         alignItems: 'center',
-        textAlign: 'center', 
+        textAlign: 'center',
         fontSize: 34,
         width: '25%',
     },
