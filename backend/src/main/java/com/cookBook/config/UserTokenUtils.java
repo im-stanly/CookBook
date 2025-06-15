@@ -4,17 +4,21 @@ import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
-
 import java.security.Key;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
-
+import org.springframework.beans.factory.annotation.Autowired;
+import com.cookBook.dto.UserModelDTO;
 import com.cookBook.entity.UserPermission;
+import com.cookBook.service.UserService;
 
 public class UserTokenUtils {
     private static final long EXPIRATION_TIME = 3600000; // 1 hour
     private static final Key SIGNING_KEY = Keys.secretKeyFor(SignatureAlgorithm.HS256);
+
+    @Autowired
+    public UserService userService;
 
     public static String generateToken(long id, String email, String username, String role, boolean isVerified) {
         Map<String, Object> claims = new HashMap<>();
@@ -61,6 +65,27 @@ public class UserTokenUtils {
     public static String getUsername(String token){
         Claims claims = getTokenClaims(token);
         return claims != null ? (String) claims.get("username") : null;
+    }
+
+    public static boolean isVerified(String token) {
+        Claims claims = getTokenClaims(token);
+        if (claims == null) return false;
+
+        if(!((String)claims.get("isVerified")).equals("true"))
+            return true;
+
+        //pobrać z bazy danych i sprawdzić czy tam verified, lub podczas veryfikacji odświeżyć mu token
+
+        return false;
+    }
+
+    private UserModelDTO getUserByToken(String token){
+        int userId = getUserID(token);
+
+        if(userId == -1)
+            return null;
+
+        return userService.findById(userId);
     }
 
     private static Claims getTokenClaims(String token) {
