@@ -28,6 +28,10 @@ public class UserModel {
     @Column(name = "EMAIL")
     private String email;
 
+    @OneToMany(mappedBy = "user")
+    private List<UserIngredientModel> userIngredients;
+
+
     @Column(name = "VERIFIED", nullable = false)
     private boolean verified;
 
