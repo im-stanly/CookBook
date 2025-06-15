@@ -5,14 +5,17 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
+import com.cookBook.dto.UserIngredientModelDTO;
+import com.cookBook.entity.*;
+import com.cookBook.repository.IngredientRepository;
+import com.cookBook.repository.MeasurementUnitRepository;
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Service;
 import com.cookBook.config.UserTokenUtils;
-import com.cookBook.entity.UserModel;
 import com.cookBook.dto.UserModelDTO;
-import com.cookBook.entity.VerificationToken;
 import com.cookBook.repository.UserRepository;
 import com.cookBook.repository.VerificationTokenRepository;
 
@@ -23,9 +26,13 @@ public class UserService {
     UserRepository userRepository;
 
     @Autowired
+    private IngredientRepository ingredientRepository;
+    @Autowired
     private VerificationTokenRepository tokenRepo;
     @Autowired
     private JavaMailSender mailSender;
+    @Autowired
+    private MeasurementUnitRepository measurementUnitRepository;
 
     public List<UserModelDTO> getUsers() {
         return userRepository.findAll().stream().map(UserModelMapper::from).toList();
@@ -121,5 +128,34 @@ public class UserService {
         userRepository.save(user);
         tokenRepo.deleteByToken(token);
         return "User verified successfully";
+    }
+    @Transactional
+    public void updateUserIngredients(long userId, List<UserIngredientModelDTO> dtoList) {
+        if (dtoList.size() > 10)
+            throw new RuntimeException("User cannot have more than 10 ingredients");
+
+        UserModel user = userRepository.findById(userId);
+        if (user == null)
+            throw new RuntimeException("User not found");
+
+        List<UserIngredientModel> newList = dtoList.stream().map(dto -> {
+            IngredientModel ingredient = ingredientRepository.findByName(dto.getIngredientName())
+                    .orElseThrow(() -> new RuntimeException("Ingredient not found: " + dto.getIngredientName()));
+
+            MeasurementUnitModel mu = measurementUnitRepository.findByName(dto.getMeasurementUnitName())
+                    .orElseThrow(() -> new RuntimeException("Measurement unit not found: " + dto.getMeasurementUnitName()));
+
+            return UserIngredientModel.builder()
+                    .user(user)
+                    .ingredient(ingredient)
+                    .quantity(dto.getQuantity())
+                    .measurementUnit(mu)
+                    .build();
+        }).toList();
+
+        user.getUserIngredients().clear();
+        user.getUserIngredients().addAll(newList);
+
+        userRepository.save(user);
     }
 }

@@ -3,6 +3,8 @@ package com.cookBook.dto;
 import lombok.Builder;
 import lombok.Data;
 
+import java.util.List;
+
 @Builder
 @Data
 public class UserModelDTO {
@@ -11,4 +13,5 @@ public class UserModelDTO {
     private String password;
     private String email;
     private boolean isVerified;
+    List<UserIngredientModelDTO> userIngredients;
 }
