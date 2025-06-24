@@ -1,5 +1,5 @@
 import { createContext, useContext, useEffect, useState } from "react";
-import * as SecureStore from "expo-secure-store";
+import { storage } from "@/utils/storage";
 import { useAuth } from "./AuthContext";
 import { jwtDecode } from 'jwt-decode';
 
@@ -54,7 +54,7 @@ export const IngredientsProvider = ({ children }: any) => {
 
             try {
                 // get the ingredients from secure storage
-                const storedIngredients = await SecureStore.getItemAsync(storageKey);
+                const storedIngredients = await storage.getItemAsync(storageKey);
                 if (storedIngredients) {
                     const parsedIngredients = JSON.parse(storedIngredients);
                     setIngredientsStateLocal({
@@ -85,7 +85,7 @@ export const IngredientsProvider = ({ children }: any) => {
 
         try {
             // save the ingredients to the ss
-            await SecureStore.setItemAsync(storageKey, JSON.stringify(newState.ingredientList));
+            await storage.setItemAsync(storageKey, JSON.stringify(newState.ingredientList));
             setIngredientsStateLocal(newState);
         }
         catch (error) {

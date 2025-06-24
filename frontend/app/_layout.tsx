@@ -14,6 +14,7 @@ import { IngredientsProvider } from '@/contexts/IngredientsContext';
 import { RecipesProvider } from '@/contexts/RecipesContext';
 import { FavIngredientsProvider } from '@/contexts/FavIngredientsContext';
 import { FoundIngredientsProvider } from '@/contexts/FoundIngredientsContext';
+import WebWrapper from '@/components/WebWrapper';
 
 SplashScreen.preventAutoHideAsync();
 SystemUI.setBackgroundColorAsync('#transparent');
@@ -39,7 +40,9 @@ export default function RootLayout() {
         <FavIngredientsProvider>
           <RecipesProvider>
             <FoundIngredientsProvider>
-              <Layout></Layout>
+              <WebWrapper>
+                <Layout></Layout>
+              </WebWrapper>
             </FoundIngredientsProvider>
           </RecipesProvider>
         </FavIngredientsProvider>

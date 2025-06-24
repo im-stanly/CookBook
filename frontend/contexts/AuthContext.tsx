@@ -1,6 +1,6 @@
 import { createContext, useContext, useEffect, useState } from "react";
 import axios from "axios";
-import * as SecureStore from "expo-secure-store";
+import { storage } from "@/utils/storage";
 import { API_URL } from "@/constants/URLs";
 
 interface AuthProps {
@@ -30,12 +30,10 @@ export const AuthProvider = ({ children }: any) => {
         authenticated: null,
         loading: true,
         username: null,
-    });
-
-    useEffect(() => {
+    });    useEffect(() => {
         const loadToken = async () => {
-            const token = await SecureStore.getItemAsync(TOKEN_KEY);
-            const username = await SecureStore.getItemAsync(USERNAME_KEY);
+            const token = await storage.getItemAsync(TOKEN_KEY);
+            const username = await storage.getItemAsync(USERNAME_KEY);
 
             if (token && username) {
                 setAuthState({
@@ -76,21 +74,19 @@ export const AuthProvider = ({ children }: any) => {
                 authenticated: true,
                 loading: false,
                 username: username,
-            });
+            });            axios.defaults.headers.common["user-token"] = result.data.token;
 
-            axios.defaults.headers.common["user-token"] = result.data.token;
-
-            await SecureStore.setItemAsync(TOKEN_KEY, result.data.token);
+            await storage.setItemAsync(TOKEN_KEY, result.data.token);
+            await storage.setItemAsync(USERNAME_KEY, username);
 
             return result;
         } catch (e) {
             return { error: true, msg: (e as any).response.data.msg };
         }
-    };
-
-    const logout = async () => {
+    };    const logout = async () => {
         try {
-            await SecureStore.deleteItemAsync(TOKEN_KEY);
+            await storage.deleteItemAsync(TOKEN_KEY);
+            await storage.deleteItemAsync(USERNAME_KEY);
             delete axios.defaults.headers.common["user-token"];
             setAuthState({
                 token: null,

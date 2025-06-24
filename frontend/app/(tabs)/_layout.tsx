@@ -68,6 +68,9 @@ export default function TabLayout() {
               paddingTop: 10,
               borderTopWidth: 0,
             },
+            web: {
+              display: 'none',
+            },
             default: {
               flexDirection: 'column',
             },
@@ -114,7 +117,10 @@ export default function TabLayout() {
 const styles = StyleSheet.create({
   addButtonContainer: {
     position: 'absolute',
-    bottom: ADDBTN_BOTTOM_OFFSET,
+    bottom: Platform.select({
+      web: 20, // Lower position on web since no tab bar
+      default: ADDBTN_BOTTOM_OFFSET,
+    }),
     right: ADDBTN_RIGHT_OFFSET,
   },
 
