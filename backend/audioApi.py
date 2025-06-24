@@ -1,18 +1,28 @@
 # pip install fastapi uvicorn openai-whisper
+# install ffmpeg
 # uvicorn audioApi:app --host 0.0.0.0 --port 8000
 from fastapi import FastAPI, UploadFile, File, HTTPException
 from fastapi.responses import JSONResponse
-import whisper
-import tempfile, os
+import whisper, tempfile, os, re
 
 app = FastAPI(
     title="Recipe Audio API",
     description="Transcribe WAV files to text",
 )
 
-# adjust model size: tiny, base, small, medium, large
 model = whisper.load_model("base")
 
+def format_ingredients(raw: str) -> str:
+    cleaned = re.sub(r"[^A-Za-z\s]", " ", raw)
+    tokens = cleaned.split()
+
+    pairs = []
+    for i in range(0, len(tokens) - 1, 2):
+        ingredient = tokens[i].capitalize()
+        unit       = tokens[i + 1].capitalize()
+        pairs.append(f"{ingredient} {unit}")
+
+    return ", ".join(pairs)
 
 @app.post("/recipe/audio")
 async def recipe_audio(file: UploadFile = File(...)):
@@ -29,6 +39,8 @@ async def recipe_audio(file: UploadFile = File(...)):
     try:
         result = model.transcribe(tmp_path)
         transcript = result["text"].strip()
-        return JSONResponse([{"text": transcript}])
+        formatted = format_ingredients(transcript)
+
+        return JSONResponse({"text": formatted})
     finally:
         os.remove(tmp_path)
