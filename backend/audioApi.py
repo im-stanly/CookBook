@@ -41,6 +41,6 @@ async def recipe_audio(file: UploadFile = File(...)):
         transcript = result["text"].strip()
         formatted = format_ingredients(transcript)
 
-        return JSONResponse({"text": formatted})
+        return JSONResponse({"ingredients": formatted})
     finally:
         os.remove(tmp_path)
