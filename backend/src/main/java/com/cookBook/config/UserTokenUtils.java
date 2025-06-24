@@ -9,16 +9,19 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+
 import com.cookBook.dto.UserModelDTO;
 import com.cookBook.entity.UserPermission;
 import com.cookBook.service.UserService;
 
+@Component
 public class UserTokenUtils {
     private static final long EXPIRATION_TIME = 3600000; // 1 hour
     private static final Key SIGNING_KEY = Keys.secretKeyFor(SignatureAlgorithm.HS256);
 
     @Autowired
-    public UserService userService;
+    UserService userService;
 
     public static String generateToken(long id, String email, String username, String role, boolean isVerified) {
         Map<String, Object> claims = new HashMap<>();
@@ -67,16 +70,15 @@ public class UserTokenUtils {
         return claims != null ? (String) claims.get("username") : null;
     }
 
-    public static boolean isVerified(String token) {
+    public boolean isVerified(String token) {
         Claims claims = getTokenClaims(token);
         if (claims == null) return false;
 
-        if(!((String)claims.get("isVerified")).equals("true"))
-            return true;
+        boolean tokenVerified = claims.get("isVerified", Boolean.class) != null
+                && claims.get("isVerified", Boolean.class);
 
-        //pobrać z bazy danych i sprawdzić czy tam verified, lub podczas veryfikacji odświeżyć mu token
-
-        return false;
+        UserModelDTO user = getUserByToken(token);
+        return user != null && user.isVerified() && tokenVerified;
     }
 
     private UserModelDTO getUserByToken(String token){
