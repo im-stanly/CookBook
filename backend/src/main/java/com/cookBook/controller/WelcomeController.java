@@ -3,12 +3,15 @@ package com.cookBook.controller;
 import com.cookBook.entity.IngredientInRecipeModel;
 import com.cookBook.entity.RecipeModel;
 import com.cookBook.repository.RecipeRepository;
+
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 import java.util.Optional;
 
+@CrossOrigin
 @RestController
 public class WelcomeController {
 
