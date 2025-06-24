@@ -181,28 +181,46 @@ export default function InputVoiceMemo() {
                         </ThemedText>
                     </View>
                 )}
-                    {recordingUri && !isRecording && (
-                        <View style={{ alignItems: 'center', marginTop: 20 }}>
-                            <ThemedText style={{ fontSize: 16, textAlign: 'center', marginBottom: 10 }}>
-                                Recording complete! ({formatDuration(duration)})
+                {recordingUri && !isRecording && (
+                    <View style={{ alignItems: 'center', marginTop: 20 }}>
+                        <ThemedText style={{ fontSize: 16, textAlign: 'center', marginBottom: 10 }}>
+                            Recording complete! ({formatDuration(duration)})
+                        </ThemedText>
+                        
+                        <TouchableOpacity
+                            onPress={() => fetchRecording(recordingUri)}
+                            disabled={isTranscribing}
+                            style={{
+                                backgroundColor: isTranscribing ? '#999' : '#2c2c2e',
+                                borderRadius: 23,
+                                padding: 15,
+                                paddingHorizontal: 20,
+                                marginBottom: 10,
+                                marginTop: 20,
+                            }}
+                        >
+                            <ThemedText style={{ color: 'white' }}>
+                                {isTranscribing ? 'Transcribing...' : 'Get Ingredients'}
                             </ThemedText>
+                        </TouchableOpacity>
 
-                            {transcription && (
-                                <View style={{ 
-                                    backgroundColor: colorScheme === 'light' ? '#f0f0f0' : '#333', 
-                                    borderRadius: 10, 
-                                    padding: 10,
-                                    marginTop: 10,
-                                    marginBottom: 20,
-                                    maxWidth: '80%'
-                                }}>
-                                    <ThemedText style={{ fontSize: 14, textAlign: 'center' }}>
-                                        {transcription}
-                                    </ThemedText>
-                                </View>
-                            )}
+                        {transcription && (
+                            <View style={{ 
+                                backgroundColor: colorScheme === 'light' ? '#2c2c2e' : '#2c2c2e', 
+                                borderRadius: 10, 
+                                padding: 10,
+                                marginTop: 10,
+                                maxWidth: '80%'
+                            }}>
+                                <ThemedText style={{ fontSize: 14, textAlign: 'center' }}>
+                                    {transcription}
+                                </ThemedText>
+                            </View>
+                        )}
                     </View>
                 )}
+
+                
             </View>
             
             <View style={{ flexDirection: "row", justifyContent: "space-between", width: "100%", paddingHorizontal: 20, alignItems: 'center' }}>
@@ -223,27 +241,6 @@ export default function InputVoiceMemo() {
                     <MaterialIcons name="delete" size={30} color="white" /> 
                 </TouchableOpacity>
 
-                {recordingUri && !isRecording && (
-                    <View style={{ alignItems: 'center', marginTop: 20 }}>
-                        
-                        <TouchableOpacity
-                            onPress={() => fetchRecording(recordingUri)}
-                            disabled={isTranscribing}
-                            style={{
-                                backgroundColor: isTranscribing ? '#999' : '#2c2c2e',
-                                borderRadius: 23,
-                                padding: 15,
-                                paddingHorizontal: 20,
-                                marginBottom: 30,
-                            }}
-                        >
-                            <ThemedText style={{ color: 'white', fontWeight: 'bold' }}>
-                                {isTranscribing ? 'Transcribing...' : 'Get Ingredients'}
-                            </ThemedText>
-                        </TouchableOpacity>
-                    </View>
-                )}
-                
                 {/* Record/Stop Button */}
                 {!isRecording ? (
                     <TouchableOpacity
