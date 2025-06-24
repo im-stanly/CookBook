@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { View, TouchableOpacity, Alert } from "react-native";
+import { View, TouchableOpacity, Alert, Platform } from "react-native";
 import { ThemedText } from "@/components/ThemedText";
 import { ThemedView } from "@/components/ThemedView";
 import { useAudioRecorder, RecordingOptions, AudioModule, RecordingPresets, RecordingStatus } from "expo-audio";
@@ -64,7 +64,21 @@ export default function InputVoiceMemo() {
             const uri = recorder.uri;
             setIsRecording(false);
             setRecordingUri(uri);
+            
             console.log('Recording saved to:', uri);
+            
+            // Debug: Check the actual file
+            if (Platform.OS === 'web' && uri) {
+                try {
+                    const response = await fetch(uri);
+                    const blob = await response.blob();
+                    console.log('Recorded file type:', blob.type);
+                    console.log('Recorded file size:', blob.size);
+                } catch (e) {
+                    console.error('Could not inspect recorded file:', e);
+                }
+            }
+            
         } catch (error) {
             console.error('Failed to stop recording:', error);
             Alert.alert('Error', 'Failed to stop recording');
@@ -116,11 +130,23 @@ export default function InputVoiceMemo() {
             console.log("Uploading recording from:", uri);
             
             const formData = new FormData();
-            formData.append('file', {
-                uri: uri,
-                type: 'audio/wav',
-                name: 'recording.wav',
-            } as any);
+            
+            if (Platform.OS === 'web') {
+                const fileResponse = await fetch(uri);
+                const fileBlob = await fileResponse.blob();
+                
+                console.log("File blob type:", fileBlob.type);
+                console.log("File blob size:", fileBlob.size);
+                
+                const audioBlob = new Blob([fileBlob], { type: 'audio/wav' });
+                formData.append('file', audioBlob, 'recording.wav');
+            } else {
+                formData.append('file', {
+                    uri: uri,
+                    type: 'audio/wav',
+                    name: 'recording.wav',
+                } as any);
+            }
 
             const response = await axios.post(`${API_URL}/recipe/audio`, formData, {
                 headers: {
