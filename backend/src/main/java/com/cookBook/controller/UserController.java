@@ -1,5 +1,6 @@
 package com.cookBook.controller;
 
+import com.cookBook.dto.UserIngredientModelDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -128,5 +129,16 @@ public class UserController {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(createErrorResponse("You don't have permissions to do delete this user"));
 
         return null;
+    }
+
+    @PostMapping("/updateFridge")
+    public ResponseEntity<?> updateUserIngredients(@RequestHeader("user-token") String userToken,
+                                                   @RequestBody List<UserIngredientModelDTO> ingredientsDTO) {
+        try {
+            userService.updateUserIngredients(UserTokenUtils.getUserID(userToken), ingredientsDTO);
+            return ResponseEntity.ok().build();
+        } catch (RuntimeException ex) {
+            return ResponseEntity.badRequest().body(Map.of("error", ex.getMessage()));
+        }
     }
 }

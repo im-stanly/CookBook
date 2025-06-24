@@ -129,6 +129,23 @@
                 <constraints nullable="false" foreignKeyName="FK_RECIPE_USER_ID" references="USERS(ID)"/>
             </column>
         </createTable>
+        <createTable tableName="USER_INGREDIENTS">
+            <column name="ID" type="bigint" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="USER_ID" type="bigint">
+                <constraints nullable="false" foreignKeyName="FK_UI_USER_ID" references="USERS(ID)"/>
+            </column>
+            <column name="INGREDIENT_ID" type="bigint">
+                <constraints nullable="false" foreignKeyName="FK_UI_INGREDIENT_ID" references="INGREDIENTS(ID)"/>
+            </column>
+            <column name="MEASUREMENT_UNIT_ID" type="bigint">
+                <constraints nullable="false" foreignKeyName="FK_UI_MEASUREMENT_UNIT_ID" references="MEASUREMENT_UNITS(ID)"/>
+            </column>
+            <column name="QUANTITY" type="bigint">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
     </changeSet>
     <changeSet id="2" author="Konrad.Ciborowski">
 
