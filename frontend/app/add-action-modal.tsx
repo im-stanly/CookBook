@@ -84,7 +84,7 @@ export default function AddActionModal() {
                     </TouchableOpacity>
                 </Animated.View> */}
                 <Animated.View style={[styles.button, getTransformStyle(0)]}>
-                    <TouchableOpacity onPress={() => console.log("Microphone pressed")} style={styles.miniButton}>
+                    <TouchableOpacity onPress={() => {router.replace('/input-voice-memo');}} style={styles.miniButton}>
                         <MaterialIcons name="mic" size={24} color="#333" />
                     </TouchableOpacity>
                 </Animated.View>

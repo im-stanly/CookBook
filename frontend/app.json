@@ -35,7 +35,13 @@
           "resizeMode": "contain",
           "backgroundColor": "#ffffff"
         }
-      ]
+      ],
+      [
+        "expo-audio",
+          {
+            "microphonePermission": "Allow CookBook to access your microphone."
+          }
+      ],
     ],
     "experiments": {
       "typedRoutes": true

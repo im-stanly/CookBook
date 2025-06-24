@@ -9,35 +9,10 @@ import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { useAuth } from '@/contexts/AuthContext';
 import { useIngredients } from '@/contexts/IngredientsContext';
 import { router } from 'expo-router';
+import { CookButton } from '@/components/CookButton';
 
 const TOP_MARGIN = Platform.OS === 'ios' ? '7%' : '5%';
 const TABBAR_HEIGHT = Sizes.TABBAR_HEIGHT;
-
-const CookButton = ({ onPress }: { onPress?: () => void }) => (
-  <TouchableOpacity
-    style={{
-      position: 'absolute',
-      bottom: TABBAR_HEIGHT + 20,
-      left: '50%',
-      transform: [{ translateX: -75 }],
-    }}
-    onPress={onPress}
-  >
-    <View
-      style={{
-        backgroundColor: '#2C2C2E',
-        width: 150,
-        height: 55,
-        borderRadius: 70,
-        alignItems: 'center',
-        flexDirection: 'row',
-        justifyContent: 'center',
-      }}>
-      <ThemedText style={{ color: 'white', fontSize: 16, paddingRight: 10, paddingBottom: 0 }}>Cook</ThemedText>
-      <MaterialCommunityIcons name='bowl-mix' size={18} color="white" style={{ paddingBottom: 4 }}></MaterialCommunityIcons>
-    </View>
-  </TouchableOpacity>
-);
 
 export default function HomeScreen() {
   const colorScheme = useColorScheme();
@@ -148,12 +123,9 @@ export default function HomeScreen() {
           </TouchableOpacity>
         </View>
 
-        {/* TODO: Ingredients list */}
         <IngredientList />
-
       </View>
 
-      {/* TODO: Add recipe page */}
       <CookButton
         onPress={() => router.push('/recipes')}
       />

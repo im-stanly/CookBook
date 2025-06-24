@@ -103,6 +103,15 @@ export const Layout = () => {
               }}
             />,
             <Stack.Screen
+              key='input-voice-memo'
+              name='input-voice-memo'
+              options={{
+                presentation: 'card',
+                animation: 'slide_from_right',
+                headerShown: false,
+              }}
+            />,
+            <Stack.Screen
               key="add-action-modal"
               name="add-action-modal"
               options={{
