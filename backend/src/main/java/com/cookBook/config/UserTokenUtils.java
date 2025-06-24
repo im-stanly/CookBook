@@ -9,16 +9,19 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+
 import com.cookBook.dto.UserModelDTO;
 import com.cookBook.entity.UserPermission;
 import com.cookBook.service.UserService;
 
+@Component
 public class UserTokenUtils {
     private static final long EXPIRATION_TIME = 3600000; // 1 hour
     private static final Key SIGNING_KEY = Keys.secretKeyFor(SignatureAlgorithm.HS256);
 
     @Autowired
-    public UserService userService;
+    UserService userService;
 
     public static String generateToken(long id, String email, String username, String role, boolean isVerified) {
         Map<String, Object> claims = new HashMap<>();

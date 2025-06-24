@@ -39,8 +39,8 @@ public class RecipeController {
     private RecipeRepository recipeRepository;
     @Autowired
     private UserRepository userRepository;
-
-    private final UserTokenUtils userTokenUtilsForStatics = new UserTokenUtils();
+    @Autowired
+    private UserTokenUtils userTokenUtilsForStatics;
 
     @PostMapping("/byIngredients")
     public ResponseEntity<Map<Integer, List<RecipeModelDTO>>> getRecipe(
