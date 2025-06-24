@@ -38,23 +38,26 @@ public class RecipeController {
     private RecipeRepository recipeRepository;
     @Autowired
     private UserRepository userRepository;
+    @Autowired
+    private UserTokenUtils userTokenUtilsForStatics;
 
     @PostMapping("/byIngredients")
     public Map<Integer, List<RecipeModelDTO>> getRecipe(@RequestHeader(value = "user-token") String userToken, @RequestBody List<UserInputIngredientDTO> ingredients){
-        // TODO: Limit the number of queries
-//        if(!UserTokenUtils.isTokenValid(userToken))
-//            return null;
-//        if(!UserTokenUtils.isVerified(userToken))
+        if(!UserTokenUtils.isTokenValid(userToken))
+            return Map.of();
+        if(!userTokenUtilsForStatics.isVerified(userToken))
+            return Map.of();
+
         String username = UserTokenUtils.getUsername(userToken);
         return recipeService.getRecipesByIngredients(ingredients,username);
     }
 
     @PostMapping("/byText")
     public List<Map<String, String>> getRecipeByPlainText(@RequestHeader(value = "user-token") String userToken, @RequestBody PlainTextIngredientsRequestDTO requestDTO){
-        // TODO: Limit the number of queries
-//        if(!UserTokenUtils.isTokenValid(userToken))
-//            return null;
-//        if(!UserTokenUtils.isVerified(userToken))
+        if(!UserTokenUtils.isTokenValid(userToken))
+            return List.of();
+        if(!userTokenUtilsForStatics.isVerified(userToken))
+            return List.of();
 
         return recipeService.plainTextToIngredients(requestDTO.getIngredients());
     }

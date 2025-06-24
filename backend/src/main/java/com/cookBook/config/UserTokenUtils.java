@@ -67,16 +67,15 @@ public class UserTokenUtils {
         return claims != null ? (String) claims.get("username") : null;
     }
 
-    public static boolean isVerified(String token) {
+    public boolean isVerified(String token) {
         Claims claims = getTokenClaims(token);
         if (claims == null) return false;
 
-        if(!((String)claims.get("isVerified")).equals("true"))
-            return true;
+        boolean tokenVerified = claims.get("isVerified", Boolean.class) != null
+                && claims.get("isVerified", Boolean.class);
 
-        //pobrać z bazy danych i sprawdzić czy tam verified, lub podczas veryfikacji odświeżyć mu token
-
-        return false;
+        UserModelDTO user = getUserByToken(token);
+        return user != null && user.isVerified() && tokenVerified;
     }
 
     private UserModelDTO getUserByToken(String token){
