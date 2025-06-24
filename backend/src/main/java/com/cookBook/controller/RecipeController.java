@@ -14,6 +14,7 @@ import com.cookBook.service.IngredientService;
 import com.cookBook.service.ReactionService;
 import com.cookBook.service.RecipeService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import java.util.List;
@@ -38,28 +39,46 @@ public class RecipeController {
     private RecipeRepository recipeRepository;
     @Autowired
     private UserRepository userRepository;
-    @Autowired
-    private UserTokenUtils userTokenUtilsForStatics;
+
+    private final UserTokenUtils userTokenUtilsForStatics = new UserTokenUtils();
 
     @PostMapping("/byIngredients")
-    public Map<Integer, List<RecipeModelDTO>> getRecipe(@RequestHeader(value = "user-token") String userToken, @RequestBody List<UserInputIngredientDTO> ingredients){
-        if(!UserTokenUtils.isTokenValid(userToken))
-            return Map.of();
-        if(!userTokenUtilsForStatics.isVerified(userToken))
-            return Map.of();
+    public ResponseEntity<Map<Integer, List<RecipeModelDTO>>> getRecipe(
+        @RequestHeader(value = "user-token") String userToken,
+        @RequestBody List<UserInputIngredientDTO> ingredients
+    ) {
+        if (!UserTokenUtils.isTokenValid(userToken)) {
+            return ResponseEntity
+                .status(HttpStatus.UNAUTHORIZED)
+                .body(Map.of());
+        }
+        if (!userTokenUtilsForStatics.isVerified(userToken)) {
+            return ResponseEntity
+                .status(HttpStatus.FORBIDDEN)
+                .body(Map.of());
+        }
 
         String username = UserTokenUtils.getUsername(userToken);
-        return recipeService.getRecipesByIngredients(ingredients,username);
+        return ResponseEntity.ok(recipeService.getRecipesByIngredients(ingredients, username));
     }
 
     @PostMapping("/byText")
-    public List<Map<String, String>> getRecipeByPlainText(@RequestHeader(value = "user-token") String userToken, @RequestBody PlainTextIngredientsRequestDTO requestDTO){
-        if(!UserTokenUtils.isTokenValid(userToken))
-            return List.of();
-        if(!userTokenUtilsForStatics.isVerified(userToken))
-            return List.of();
+    public ResponseEntity<List<Map<String, String>>> getRecipeByPlainText(
+            @RequestHeader(value = "user-token") String userToken,
+            @RequestBody PlainTextIngredientsRequestDTO requestDTO
+    ) {
+        if (!UserTokenUtils.isTokenValid(userToken)) {
+            return ResponseEntity
+                    .status(HttpStatus.UNAUTHORIZED)
+                    .body(List.of());
+        }
+        if (!userTokenUtilsForStatics.isVerified(userToken)) {
+            return ResponseEntity
+                    .status(HttpStatus.FORBIDDEN)
+                    .body(List.of());
+        }
 
-        return recipeService.plainTextToIngredients(requestDTO.getIngredients());
+        return ResponseEntity.ok(recipeService.plainTextToIngredients(requestDTO.getIngredients()));
     }
 
     @GetMapping("/ingredients/{ingName}")
