@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { View, TouchableOpacity, Alert, Platform } from "react-native";
 import { ThemedText } from "@/components/ThemedText";
 import { ThemedView } from "@/components/ThemedView";
-import { useAudioRecorder, RecordingOptions, AudioModule, RecordingPresets, RecordingStatus } from "expo-audio";
+import { useAudioRecorder, RecordingOptions, AudioModule, RecordingPresets, RecordingStatus, AudioQuality, IOSOutputFormat } from "expo-audio";
 import { MaterialIcons } from "@expo/vector-icons";
 import axios from 'axios';
 import { CookButton } from '@/components/CookButton';
@@ -19,10 +19,11 @@ const recordingOptions: RecordingOptions = {
         outputFormat: 'default',
         audioEncoder: 'default',
     },
-    ios: {
+       ios: {
         extension: '.wav',
-        outputFormat: 'linearPCM',
-        audioQuality: 10,
+        outputFormat: IOSOutputFormat.LINEARPCM,
+        audioQuality: AudioQuality.MAX,  
+        sampleRate: 44100,
     },
     web: {
         mimeType: 'audio/wav',
@@ -48,40 +49,35 @@ export default function InputVoiceMemo() {
 
     const startRecording = async () => {
         try {
+            console.log('Starting recording...');
+
             await recorder.prepareToRecordAsync();
-            recorder.record();
+            await recorder.record(); 
             setIsRecording(true);
-            setDuration(0); 
+            setDuration(0);
+            
+            console.log('Recording started successfully');
         } catch (error) {
             console.error('Failed to start recording:', error);
-            Alert.alert('Error', 'Failed to start recording');
+            Alert.alert('Recording Error', `Failed to start recording: ${error.message}`);
+            setIsRecording(false);
         }
     }
 
     const stopRecording = async () => {
         try {
+            console.log('Stopping recording...');
+            
             await recorder.stop();
             const uri = recorder.uri;
             setIsRecording(false);
             setRecordingUri(uri);
             
-            console.log('Recording saved to:', uri);
-            
-            // Debug: Check the actual file
-            if (Platform.OS === 'web' && uri) {
-                try {
-                    const response = await fetch(uri);
-                    const blob = await response.blob();
-                    console.log('Recorded file type:', blob.type);
-                    console.log('Recorded file size:', blob.size);
-                } catch (e) {
-                    console.error('Could not inspect recorded file:', e);
-                }
-            }
-            
+            console.log('Recording stopped successfully, URI:', uri);
         } catch (error) {
             console.error('Failed to stop recording:', error);
-            Alert.alert('Error', 'Failed to stop recording');
+            Alert.alert('Recording Error', `Failed to stop recording: ${error.message}`);
+            setIsRecording(false);
         }
     };  
 
@@ -95,8 +91,8 @@ export default function InputVoiceMemo() {
     
     useEffect(() => {
         (async () => {
-            const status = await AudioModule.requestRecordingPermissionsAsync();
-                if (!status.granted) {
+            const permissionResponse = await AudioModule.requestRecordingPermissionsAsync();
+                if (permissionResponse.status !== 'granted') {
                     Alert.alert('Permission to access microphone was denied');
                 }
         })();
