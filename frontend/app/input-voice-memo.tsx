@@ -7,7 +7,7 @@ import { MaterialIcons } from "@expo/vector-icons";
 import axios from 'axios';
 import { CookButton } from '@/components/CookButton';
 import { router } from "expo-router";
-import { API_URL } from "@/constants/URLs";
+import { API_URL, API_URL_AI } from "@/constants/URLs";
 
 import { useColorScheme } from "@/hooks/useColorScheme";
 import { useFoundIngredients } from "@/contexts/FoundIngredientsContext";
@@ -21,9 +21,12 @@ const recordingOptions: RecordingOptions = {
     },
        ios: {
         extension: '.wav',
-        outputFormat: IOSOutputFormat.LINEARPCM,
-        audioQuality: AudioQuality.MAX,  
+        outputFormat: IOSOutputFormat.MPEG4AAC,
+        audioQuality: AudioQuality.MEDIUM,  
         sampleRate: 44100,
+        linearPCMBitDepth: 16,   
+        linearPCMIsBigEndian: false,
+        linearPCMIsFloat: false,
     },
     web: {
         mimeType: 'audio/wav',
@@ -40,7 +43,7 @@ export default function InputVoiceMemo() {
     const [transcription, setTranscription] = useState<string>('');
     
     // Add this to access the found ingredients context
-    const { setFoundIngredients } = useFoundIngredients();
+    const { fetchFoundIngredientsByText } = useFoundIngredients();
 
     const recorder = useAudioRecorder(recordingOptions, (status: RecordingStatus) => {
         // Log the status to see what properties are available
@@ -144,7 +147,7 @@ export default function InputVoiceMemo() {
                 } as any);
             }
 
-            const response = await axios.post(`${API_URL}/recipe/audio`, formData, {
+            const response = await axios.post(`${API_URL_AI}/recipe/audio`, formData, {
                 headers: {
                     'Content-Type': 'multipart/form-data',
                 },
@@ -154,20 +157,20 @@ export default function InputVoiceMemo() {
             console.log("Transcription response:", response.data);
             
             if (response.data && response.data.ingredients) {
-                setTranscription(response.data.ingredients);
+                // setTranscription(response.data.ingredients);
                 
-                const ingredientsList = response.data.ingredients
-                    .split(',')
-                    .map((ingredient: string) => ingredient.trim())
-                    .filter((ingredient: string) => ingredient.length > 0);
+                // const ingredientsList = response.data.ingredients
+                //     .split(',')
+                //     .map((ingredient: string) => ingredient.trim())
+                //     .filter((ingredient: string) => ingredient.length > 0);
                 
-                const foundIngredients = ingredientsList.map((ingredient: string) => ({
-                    input: ingredient,
-                    unit: '', 
-                    name: ingredient
-                }));
+                // const foundIngredients = ingredientsList.map((ingredient: string) => ({
+                //     input: ingredient,
+                //     unit: '', 
+                //     name: ingredient
+                // }));
                 
-                setFoundIngredients(foundIngredients);
+                fetchFoundIngredientsByText(response.data.ingredients);
                 
                 router.push('/found-ingredients');
             }

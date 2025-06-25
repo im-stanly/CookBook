@@ -11,4 +11,5 @@ const getAPIURL = () => {
     }
 };
 
-export const API_URL = "192.168.0.92:8080"; 
+export const API_URL = "http://135.236.152.194:8080"; 
+export const API_URL_AI = "http://135.236.152.194:8000"; 

@@ -48,7 +48,7 @@ export const AuthProvider = ({ children }: any) => {
                 {/* TODO: change authenticated to false (set to true only for testing) */ }
                 setAuthState({
                     token: null,
-                    authenticated: true,
+                    authenticated: false,
                     loading: false,
                     username: null,
                 });
