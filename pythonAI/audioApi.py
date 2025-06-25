@@ -3,11 +3,19 @@
 # uvicorn audioApi:app --host 0.0.0.0 --port 8000
 from fastapi import FastAPI, UploadFile, File, HTTPException
 from fastapi.responses import JSONResponse
+from fastapi.middleware.cors import CORSMiddleware
 import whisper, tempfile, os, re
 
 app = FastAPI(
     title="Recipe Audio API",
     description="Transcribe WAV files to text",
+)
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_methods=["*"],
+    allow_headers=["*"],
 )
 
 model = whisper.load_model("base")
@@ -37,7 +45,7 @@ async def recipe_audio(file: UploadFile = File(...)):
         tmp_path = tmp.name
 
     try:
-        result = model.transcribe(tmp_path)
+        result = model.transcribe(tmp_path, language="en", task="transcribe")
         transcript = result["text"].strip()
         formatted = format_ingredients(transcript)
 

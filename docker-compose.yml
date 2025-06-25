@@ -39,6 +39,14 @@ services:
     stdin_open: true
     tty: true
 
+  pythonai:
+    build:
+      context: ./pythonAI
+    restart: unless-stopped
+    env_file: ./.env
+    ports:
+      - ${AUDIOAPI_LOCAL_PORT:-8000}:${AUDIOAPI_DOCKER_PORT:-8000}
+
   populate:
     build: ./populate
     depends_on:
