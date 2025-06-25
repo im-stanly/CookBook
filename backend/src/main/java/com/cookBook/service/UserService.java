@@ -109,7 +109,9 @@ public class UserService {
     }
 
     private void sendVerificationEmail(String email, String token) {
-        String link = "http://localhost:8080/user/verify?token=" + token;
+//        String link = "http://localhost:8080/user/verify?token=" + token;
+        String link = "http://135.236.152.194:8080/user/verify?token=" + token;
+
         SimpleMailMessage msg = new SimpleMailMessage();
         msg.setTo(email);
         msg.setSubject("Please Verify Your Email");
