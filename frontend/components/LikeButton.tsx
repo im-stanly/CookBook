@@ -51,7 +51,7 @@ export default function LikeButton({
                         setLikesCount(String(Number(likesCount) + 1));
                         setDislikesCount(String(Number(dislikesCount) - 1));
 
-                        axios.delete(`${API_URL}/recipe/${recipe.id}/react`, { params: { username: username } })
+                        // axios.delete(`${API_URL}/recipe/${recipe.id}/react`, { params: { username: username } })
                         axios.post(`${API_URL}/recipe/${recipe.id}/react`, {}, { params: { isLike: true, username: username } })
                     }
                 }}
@@ -85,7 +85,7 @@ export default function LikeButton({
                         setLikesCount(String(Number(likesCount) - 1));
                         setDislikesCount(String(Number(dislikesCount) + 1));
 
-                        axios.delete(`${API_URL}/recipe/${recipe.id}/react`, { params: { username: username } })
+                        // axios.delete(`${API_URL}/recipe/${recipe.id}/react`, { params: { username: username } })
                         axios.post(`${API_URL}/recipe/${recipe.id}/react`, {}, { params: { isLike: false, username: username } })
                     }
                 }}
