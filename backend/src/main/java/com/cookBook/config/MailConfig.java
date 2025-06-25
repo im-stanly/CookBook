@@ -8,13 +8,14 @@ import java.util.Properties;
 
 @Configuration
 public class MailConfig {
+
     @Bean
     public JavaMailSender javaMailSender() {
         JavaMailSenderImpl mailSender = new JavaMailSenderImpl();
         mailSender.setHost("smtp.gmail.com");
         mailSender.setPort(587);
         mailSender.setUsername("cook.book.noreply2025@gmail.com");
-        mailSender.setPassword("lnnm wzjw nvxs qchr");
+        mailSender.setPassword(System.getenv("MAIL_PASSWORD"));
 
         Properties props = mailSender.getJavaMailProperties();
         props.put("mail.transport.protocol", "smtp");
